@@ -1,0 +1,262 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  #tvct-root {
+    --tvc-bg: #060107;
+    --tvc-bg-soft: #0d0410;
+    --tvc-card: #140a18;
+    --tvc-purple: #7c2af8;
+    --tvc-pink: #ec1fa0;
+    --tvc-gradient: linear-gradient(135deg, #5b21b6 0%, #a021c9 45%, #ec1fa0 100%);
+    background: var(--tvc-bg);
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  #tvct-root * { box-sizing: border-box; }
+  #tvct-root img { max-width: 100%; display: block; }
+  #tvct-root a { color: inherit; text-decoration: none; }
+  #tvct-root ul { list-style: none; margin: 0; padding: 0; }
+
+  #tvct-root .tvct-display { font-family: 'Anton', 'Inter', sans-serif; letter-spacing: .01em; }
+  #tvct-root .tvct-gradient-bg { background-image: var(--tvc-gradient); }
+  #tvct-root .tvct-gradient-border {
+    border: 1px solid transparent;
+    background-image: linear-gradient(var(--tvc-bg), var(--tvc-bg)), var(--tvc-gradient);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  @keyframes tvct-nav-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes tvct-icon-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(-4deg); }
+  }
+  .tvct-icon-float { animation: tvct-icon-float 3.2s ease-in-out infinite; }
+
+  .tvct-nav-shimmer {
+    height: 2px; width: 100%; opacity: .7;
+    background-image: linear-gradient(90deg, transparent 0%, var(--tvc-purple) 25%, var(--tvc-pink) 50%, var(--tvc-purple) 75%, transparent 100%);
+    background-size: 200% 100%;
+    animation: tvct-nav-shimmer 6s linear infinite;
+  }
+
+  /* NAV */
+  .tvct-nav { position: sticky; top: 0; z-index: 50; width: 100%; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.7); backdrop-filter: blur(10px); }
+  .tvct-nav__inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 12px; }
+  .tvct-nav__logo { width: 34px; height: 34px; border-radius: 999px; object-fit: cover; }
+  .tvct-nav__step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: rgba(255,255,255,.4); text-align: right; }
+  @media (min-width: 640px) { .tvct-nav__inner { padding: 16px 24px; } .tvct-nav__logo { width: 36px; height: 36px; } .tvct-nav__step { font-size: 12px; } }
+
+  /* HERO */
+  .tvct-hero { position: relative; overflow: hidden; padding: 56px 16px; text-align: center; }
+  .tvct-hero__glow {
+    position: absolute; inset: 0; z-index: 0; opacity: .6; pointer-events: none;
+    background: radial-gradient(60% 50% at 50% 0%, rgba(124,42,248,.35) 0%, rgba(6,1,7,0) 70%),
+                radial-gradient(40% 40% at 85% 20%, rgba(236,31,160,.25) 0%, rgba(6,1,7,0) 70%);
+  }
+  .tvct-hero__inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+
+  .tvct-check {
+    width: 56px; height: 56px; border-radius: 999px; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    box-shadow: 0 15px 30px -8px rgba(124,42,248,.45);
+  }
+  .tvct-check svg { width: 28px; height: 28px; }
+  @media (min-width: 640px) { .tvct-check { width: 64px; height: 64px; } .tvct-check svg { width: 32px; height: 32px; } }
+
+  .tvct-eyebrow { margin: 0 0 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #e879f9; }
+  .tvct-hero h1 { font-size: 28px; text-transform: uppercase; line-height: 1.2; color: #fff; margin: 0; }
+  .tvct-hero__sub { max-width: 560px; margin: 16px auto 0; font-size: 15px; color: rgba(255,255,255,.7); }
+  @media (min-width: 640px) {
+    .tvct-hero { padding: 80px 24px; }
+    .tvct-hero h1 { font-size: 40px; }
+    .tvct-hero__sub { font-size: 18px; }
+  }
+  @media (min-width: 768px) { .tvct-hero h1 { font-size: 48px; } }
+
+  /* VIDEO */
+  .tvct-video {
+    position: relative; margin: 36px auto 0; max-width: 640px; aspect-ratio: 16/9;
+    overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
+    background: linear-gradient(135deg, #1a0b22, #0d0410);
+    box-shadow: 0 25px 60px -20px rgba(88,0,64,.4);
+  }
+  .tvct-video video { width: 100%; height: 100%; display: block; }
+  .tvct-video__poster {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; height: 100%; border: none; background: transparent; cursor: pointer;
+  }
+  .tvct-video__play {
+    width: 48px; height: 48px; border-radius: 999px; background: rgba(255,255,255,.95); color: #000;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -8px rgba(0,0,0,.6);
+    transition: transform .2s ease;
+  }
+  .tvct-video__poster:hover .tvct-video__play { transform: scale(1.1); }
+  .tvct-video__play svg { width: 20px; height: 20px; }
+  .tvct-video__label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.5); }
+  @media (min-width: 640px) {
+    .tvct-video { border-radius: 16px; }
+    .tvct-video__play { width: 64px; height: 64px; }
+    .tvct-video__play svg { width: 24px; height: 24px; }
+    .tvct-video__label { font-size: 14px; }
+  }
+
+  /* WHAT HAPPENS CARD */
+  .tvct-next { margin: 40px auto 0; max-width: 640px; border-radius: 16px; background: var(--tvc-card); padding: 24px; text-align: left; }
+  .tvct-next__title { font-family: 'Anton','Inter',sans-serif; margin: 0 0 20px; text-align: center; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); }
+  .tvct-next li { display: flex; align-items: flex-start; gap: 12px; }
+  .tvct-next li + li { margin-top: 16px; }
+  .tvct-next__num {
+    width: 28px; height: 28px; border-radius: 999px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    box-shadow: 0 10px 20px -8px rgba(124,42,248,.4);
+  }
+  .tvct-next__text { margin-top: 2px; font-size: 14px; color: rgba(255,255,255,.8); }
+  @media (min-width: 640px) {
+    .tvct-next { padding: 32px; }
+    .tvct-next__title { font-size: 16px; }
+    .tvct-next__text { font-size: 16px; }
+  }
+
+  .tvct-closing { max-width: 560px; margin: 32px auto 0; font-size: 14px; color: rgba(255,255,255,.5); }
+
+  /* FOOTER */
+  .tvct-footer { border-top: 1px solid rgba(255,255,255,.1); background: #000; padding: 32px 16px; text-align: center; }
+  .tvct-footer__brand { font-family: 'Anton','Inter',sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.6); margin: 0; }
+  .tvct-footer__copy { margin: 8px 0 0; font-size: 11px; color: rgba(255,255,255,.3); }
+
+  #tvct-root [hidden] { display: none !important; }
+</style>
+
+<div id="tvct-root">
+
+  <!-- SECTION: NAV -->
+  <header class="tvct-nav">
+    <div class="tvct-nav__inner">
+      <a href="/" aria-label="The Viral Circle">
+        <img class="tvct-nav__logo" src="https://assets-2-prod.whop.com/public/uploads/2025-05-14/user_3134765_25927faf-e31d-42f4-87d5-4a0552277e08.jpeg" alt="The Viral Circle" />
+      </a>
+      <span class="tvct-nav__step">Step 3 of 3 &mdash; You're Booked</span>
+    </div>
+    <div class="tvct-nav-shimmer"></div>
+  </header>
+
+  <!-- SECTION: CONFIRMATION -->
+  <section class="tvct-hero">
+    <div class="tvct-hero__glow"></div>
+    <div class="tvct-hero__inner">
+
+      <div class="tvct-check tvct-gradient-bg">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2Z"/></svg>
+      </div>
+
+      <p class="tvct-eyebrow">You're Booked</p>
+      <h1 class="tvct-display" id="tvctHeadline">Thanks. See You On The Call.</h1>
+      <p class="tvct-hero__sub">A calendar invite is on its way to your inbox. While you wait, here's exactly what to expect.</p>
+
+      <div class="tvct-video" id="tvctVideoCard" hidden>
+        <button type="button" class="tvct-video__poster" id="tvctVideoPoster" aria-label="Play video">
+          <span class="tvct-video__play">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          <span class="tvct-video__label">Watch: What Happens On Your Call</span>
+        </button>
+      </div>
+
+      <div class="tvct-gradient-border tvct-next">
+        <p class="tvct-next__title">What Happens On The Call</p>
+        <ul>
+          <li>
+            <span class="tvct-next__num tvct-gradient-bg tvct-icon-float" style="animation-delay:0s;">1</span>
+            <span class="tvct-next__text">We review your shop, your samples, and your current creator activity</span>
+          </li>
+          <li>
+            <span class="tvct-next__num tvct-gradient-bg tvct-icon-float" style="animation-delay:.35s;">2</span>
+            <span class="tvct-next__text">We map out exactly what a 150+ member owned creator community looks like for your brand</span>
+          </li>
+          <li>
+            <span class="tvct-next__num tvct-gradient-bg tvct-icon-float" style="animation-delay:.7s;">3</span>
+            <span class="tvct-next__text">You leave with a clear next step, no obligation either way</span>
+          </li>
+        </ul>
+      </div>
+
+      <p class="tvct-closing">We only take on a few brands at a time &mdash; see you soon.</p>
+    </div>
+  </section>
+
+  <!-- SECTION: FOOTER -->
+  <footer class="tvct-footer">
+    <p class="tvct-footer__brand">The Viral Circle</p>
+    <p class="tvct-footer__copy" id="tvctFooterCopy">&copy; The Viral Circle. All rights reserved.</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ====== EDIT THIS ======
+     Direct URL to your explainer video (mp4). Leave it as an empty string and
+     the whole video card stays hidden, so nothing broken shows on the page.
+     The Whop version of this page has no video source set yet. */
+  var VIDEO_URL = '';
+  /* ======================= */
+
+  var root = document.getElementById('tvct-root');
+  if (!root) return;
+
+  /* footer year */
+  var yearEl = document.getElementById('tvctFooterCopy');
+  if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
+
+  /* ---------- who is this person? ----------
+     URL params first (e.g. Calendly/GHL redirect passing ?name= / ?email=),
+     then sessionStorage carried over from the earlier funnel steps. */
+  function readParam(keys) {
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      for (var i = 0; i < keys.length; i++) {
+        var v = qs.get(keys[i]);
+        if (v) return v.trim();
+      }
+    } catch (e) { /* no URLSearchParams support */ }
+    return '';
+  }
+  function readStore(key) {
+    try { return (sessionStorage.getItem(key) || '').trim(); } catch (e) { return ''; }
+  }
+
+  var leadName = readParam(['name', 'first_name', 'full_name', 'firstName']) || readStore('tvc_lead_name');
+
+  var headline = document.getElementById('tvctHeadline');
+  if (headline && leadName) {
+    headline.textContent = 'Thanks, ' + leadName.split(' ')[0] + '. See You On The Call.';
+  }
+
+  /* ---------- explainer video ---------- */
+  var card = document.getElementById('tvctVideoCard');
+  var poster = document.getElementById('tvctVideoPoster');
+
+  if (card && poster && VIDEO_URL) {
+    card.hidden = false;
+    poster.addEventListener('click', function () {
+      var video = document.createElement('video');
+      video.src = VIDEO_URL;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.preload = 'metadata';
+      card.innerHTML = '';
+      card.appendChild(video);
+      video.play().catch(function () { /* autoplay blocked: controls are there */ });
+    });
+  }
+})();
+</script>
