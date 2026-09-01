@@ -1,0 +1,267 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  #tvcb-root {
+    --tvc-bg: #060107;
+    --tvc-bg-soft: #0d0410;
+    --tvc-card: #140a18;
+    --tvc-purple: #7c2af8;
+    --tvc-pink: #ec1fa0;
+    --tvc-gradient: linear-gradient(135deg, #5b21b6 0%, #a021c9 45%, #ec1fa0 100%);
+    --tvc-gradient-text: linear-gradient(90deg, #c084fc 0%, #f472b6 100%);
+    background: var(--tvc-bg);
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  #tvcb-root * { box-sizing: border-box; }
+  #tvcb-root img { max-width: 100%; display: block; }
+  #tvcb-root a { color: inherit; text-decoration: none; }
+
+  #tvcb-root .tvcb-display { font-family: 'Anton', 'Inter', sans-serif; letter-spacing: .01em; }
+  #tvcb-root .tvcb-gradient-bg { background-image: var(--tvc-gradient); }
+  #tvcb-root .tvcb-gradient-border {
+    border: 1px solid transparent;
+    background-image: linear-gradient(var(--tvc-bg), var(--tvc-bg)), var(--tvc-gradient);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  @keyframes tvcb-nav-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes tvcb-spin { to { transform: rotate(360deg); } }
+
+  .tvcb-nav-shimmer {
+    height: 2px; width: 100%; opacity: .7;
+    background-image: linear-gradient(90deg, transparent 0%, var(--tvc-purple) 25%, var(--tvc-pink) 50%, var(--tvc-purple) 75%, transparent 100%);
+    background-size: 200% 100%;
+    animation: tvcb-nav-shimmer 6s linear infinite;
+  }
+
+  /* NAV */
+  .tvcb-nav { position: sticky; top: 0; z-index: 50; width: 100%; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.7); backdrop-filter: blur(10px); }
+  .tvcb-nav__inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 12px; }
+  .tvcb-nav__logo { width: 34px; height: 34px; border-radius: 999px; object-fit: cover; }
+  .tvcb-nav__step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: rgba(255,255,255,.4); text-align: right; }
+  @media (min-width: 640px) { .tvcb-nav__inner { padding: 16px 24px; } .tvcb-nav__logo { width: 36px; height: 36px; } .tvcb-nav__step { font-size: 12px; } }
+
+  /* HERO */
+  .tvcb-hero { position: relative; overflow: hidden; padding: 56px 16px; text-align: center; }
+  .tvcb-hero__glow {
+    position: absolute; inset: 0; z-index: 0; opacity: .6; pointer-events: none;
+    background: radial-gradient(60% 50% at 50% 0%, rgba(124,42,248,.35) 0%, rgba(6,1,7,0) 70%),
+                radial-gradient(40% 40% at 85% 20%, rgba(236,31,160,.25) 0%, rgba(6,1,7,0) 70%);
+  }
+  .tvcb-hero__inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
+  .tvcb-eyebrow { margin: 0 0 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #e879f9; }
+  .tvcb-hero h1 { font-size: 28px; text-transform: uppercase; line-height: 1.2; color: #fff; margin: 0; }
+  .tvcb-hero__sub { max-width: 560px; margin: 16px auto 0; font-size: 15px; color: rgba(255,255,255,.7); }
+  @media (min-width: 640px) {
+    .tvcb-hero { padding: 80px 24px; }
+    .tvcb-hero h1 { font-size: 40px; }
+    .tvcb-hero__sub { font-size: 18px; }
+  }
+  @media (min-width: 768px) { .tvcb-hero h1 { font-size: 48px; } }
+
+  /* CALENDLY CARD */
+  .tvcb-cal-card { position: relative; margin: 40px auto 0; overflow: hidden; border-radius: 16px; background: var(--tvc-card); }
+  .tvcb-cal-widget { min-width: 280px; min-height: 680px; width: 100%; }
+  .tvcb-cal-loader {
+    position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center;
+    background: var(--tvc-card);
+  }
+  .tvcb-cal-loader__icon {
+    width: 56px; height: 56px; border-radius: 999px; display: flex; align-items: center; justify-content: center;
+    color: #fff; box-shadow: 0 15px 30px -8px rgba(124,42,248,.45);
+  }
+  .tvcb-cal-loader__icon svg { width: 28px; height: 28px; }
+  .tvcb-cal-loader__text { font-family: 'Anton','Inter',sans-serif; font-size: 18px; text-transform: uppercase; color: #fff; margin: 0; }
+  .tvcb-cal-loader__spinner {
+    width: 22px; height: 22px; border-radius: 999px;
+    border: 2px solid rgba(255,255,255,.15); border-top-color: var(--tvc-pink);
+    animation: tvcb-spin .8s linear infinite;
+  }
+
+  .tvcb-fallback { max-width: 560px; margin: 32px auto 0; font-size: 12px; color: rgba(255,255,255,.4); }
+  .tvcb-fallback a { color: #e879f9; text-decoration: underline; text-underline-offset: 2px; }
+
+  /* FOOTER */
+  .tvcb-footer { border-top: 1px solid rgba(255,255,255,.1); background: #000; padding: 32px 16px; text-align: center; }
+  .tvcb-footer__brand { font-family: 'Anton','Inter',sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.6); margin: 0; }
+  .tvcb-footer__copy { margin: 8px 0 0; font-size: 11px; color: rgba(255,255,255,.3); }
+
+  #tvcb-root [hidden] { display: none !important; }
+</style>
+
+<div id="tvcb-root">
+
+  <!-- SECTION: NAV -->
+  <header class="tvcb-nav">
+    <div class="tvcb-nav__inner">
+      <a href="/" aria-label="The Viral Circle">
+        <img class="tvcb-nav__logo" src="https://assets-2-prod.whop.com/public/uploads/2025-05-14/user_3134765_25927faf-e31d-42f4-87d5-4a0552277e08.jpeg" alt="The Viral Circle" />
+      </a>
+      <span class="tvcb-nav__step">Step 2 of 3 &mdash; Book Your Call</span>
+    </div>
+    <div class="tvcb-nav-shimmer"></div>
+  </header>
+
+  <!-- SECTION: BOOKING -->
+  <section class="tvcb-hero">
+    <div class="tvcb-hero__glow"></div>
+    <div class="tvcb-hero__inner">
+      <p class="tvcb-eyebrow" id="tvcbEyebrow">You're In.</p>
+      <h1 class="tvcb-display">Pick A Time That Works For You.</h1>
+      <p class="tvcb-hero__sub">30 minutes. We'll look at your shop, your samples, and your current creators, and map out exactly what this looks like for your brand.</p>
+
+      <div class="tvcb-gradient-border tvcb-cal-card">
+        <div class="tvcb-cal-loader" id="tvcbCalLoader">
+          <div class="tvcb-cal-loader__icon tvcb-gradient-bg">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 16H5V8h14Z"/></svg>
+          </div>
+          <p class="tvcb-cal-loader__text">Loading Calendar...</p>
+          <div class="tvcb-cal-loader__spinner"></div>
+        </div>
+        <div class="tvcb-cal-widget" id="tvcbCalWidget"></div>
+      </div>
+
+      <p class="tvcb-fallback">
+        Already booked but the page didn't move?
+        <a href="#" id="tvcbContinueLink">Continue &rarr;</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- SECTION: FOOTER -->
+  <footer class="tvcb-footer">
+    <p class="tvcb-footer__brand">The Viral Circle</p>
+    <p class="tvcb-footer__copy" id="tvcbFooterCopy">&copy; The Viral Circle. All rights reserved.</p>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ====== EDIT THESE TWO VALUES ====== */
+  var CALENDLY_URL  = 'https://calendly.com/tvc-theviralcircle/tvc-brand-launch-plan-clone';
+  var THANKYOU_URL  = '/thank-you';   // the GHL page to send people to after they book
+  /* =================================== */
+
+  var root = document.getElementById('tvcb-root');
+  if (!root) return;
+
+  /* footer year */
+  var yearEl = document.getElementById('tvcbFooterCopy');
+  if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
+
+  /* continue link target */
+  var continueLink = document.getElementById('tvcbContinueLink');
+  if (continueLink) continueLink.setAttribute('href', THANKYOU_URL);
+
+  /* ---------- who is this person? ----------
+     Prefer URL params (set these on the GHL form's redirect, e.g.
+     /book?name={{contact.name}}&email={{contact.email}}), then fall back to
+     sessionStorage written by the landing page's qualify modal. */
+  function readParam(keys) {
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      for (var i = 0; i < keys.length; i++) {
+        var v = qs.get(keys[i]);
+        if (v) return v.trim();
+      }
+    } catch (e) { /* no URLSearchParams support */ }
+    return '';
+  }
+  function readStore(key) {
+    try { return (sessionStorage.getItem(key) || '').trim(); } catch (e) { return ''; }
+  }
+
+  var leadName  = readParam(['name', 'first_name', 'full_name', 'firstName']) || readStore('tvc_lead_name');
+  var leadEmail = readParam(['email', 'contact_email'])                       || readStore('tvc_lead_email');
+
+  /* keep them around for the thank-you page */
+  try {
+    if (leadName)  sessionStorage.setItem('tvc_lead_name', leadName);
+    if (leadEmail) sessionStorage.setItem('tvc_lead_email', leadEmail);
+  } catch (e) { /* non-fatal */ }
+
+  /* personalise the eyebrow */
+  var eyebrow = document.getElementById('tvcbEyebrow');
+  if (eyebrow && leadName) {
+    eyebrow.textContent = "You're In, " + leadName.split(' ')[0] + '.';
+  }
+
+  /* ---------- build the Calendly URL ---------- */
+  var params = [
+    'hide_gdpr_banner=1',
+    'background_color=0d0410',
+    'text_color=ffffff',
+    'primary_color=ec1fa0'
+  ];
+  var calUrl = CALENDLY_URL + (CALENDLY_URL.indexOf('?') === -1 ? '?' : '&') + params.join('&');
+
+  /* ---------- load Calendly assets ----------
+     Injected via JS rather than <link>/<script> tags, because GHL strips those
+     from pasted markup. Injecting them at runtime works fine. */
+  if (!document.querySelector('link[data-tvcb-calendly-css]')) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://assets.calendly.com/assets/external/widget.css';
+    link.setAttribute('data-tvcb-calendly-css', 'true');
+    document.head.appendChild(link);
+  }
+
+  var loader = document.getElementById('tvcbCalLoader');
+  function hideLoader() { if (loader) loader.hidden = true; }
+
+  function initWidget() {
+    var parent = document.getElementById('tvcbCalWidget');
+    if (!parent || !window.Calendly || typeof window.Calendly.initInlineWidget !== 'function') return;
+    window.Calendly.initInlineWidget({
+      url: calUrl,
+      parentElement: parent,
+      prefill: { name: leadName || '', email: leadEmail || '' }
+    });
+    /* Calendly renders in an iframe; give it a beat, then drop the loader.
+       The message listener below also clears it as soon as Calendly speaks. */
+    setTimeout(hideLoader, 1200);
+  }
+
+  var existing = document.querySelector('script[data-tvcb-calendly-js]');
+  if (existing && window.Calendly) {
+    initWidget();
+  } else if (existing) {
+    existing.addEventListener('load', initWidget);
+  } else {
+    var s = document.createElement('script');
+    s.src = 'https://assets.calendly.com/assets/external/widget.js';
+    s.async = true;
+    s.setAttribute('data-tvcb-calendly-js', 'true');
+    s.onload = initWidget;
+    document.body.appendChild(s);
+  }
+
+  /* safety net: never leave the loader up forever */
+  setTimeout(hideLoader, 8000);
+
+  /* ---------- advance to thank-you when a call is actually booked ---------- */
+  window.addEventListener('message', function (e) {
+    if (!e || !e.data || typeof e.data.event !== 'string') return;
+    if (e.data.event.indexOf('calendly.') !== 0) return;
+
+    hideLoader();
+
+    if (e.data.event === 'calendly.event_scheduled') {
+      var url = THANKYOU_URL;
+      if (leadEmail) {
+        url += (url.indexOf('?') === -1 ? '?' : '&') + 'email=' + encodeURIComponent(leadEmail);
+      }
+      window.location.href = url;
+    }
+  });
+})();
+</script>
