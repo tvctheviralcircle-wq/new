@@ -1,0 +1,128 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --tvc-bg: #060107;
+  --tvc-bg-soft: #0d0410;
+  --tvc-card: #140a18;
+  --tvc-purple: #7c2af8;
+  --tvc-purple-deep: #4c1d95;
+  --tvc-pink: #ec1fa0;
+  --tvc-pink-light: #ff6fc4;
+  --tvc-gradient: linear-gradient(135deg, #5b21b6 0%, #a021c9 45%, #ec1fa0 100%);
+  --tvc-gradient-text: linear-gradient(90deg, #c084fc 0%, #f472b6 100%);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 31, 160, 0.4) transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--tvc-bg);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: 'Anton', 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.gradient-text {
+  background-image: var(--tvc-gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background-image: var(--tvc-gradient);
+}
+
+.gradient-border {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--tvc-bg), var(--tvc-bg)), var(--tvc-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 22s linear infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.65), 0 0 6px 1px rgba(239, 68, 68, 0.9);
+  }
+  50% {
+    opacity: 0.35;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 0 2px 0 rgba(239, 68, 68, 0.4);
+  }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-4deg);
+  }
+}
+
+.animate-icon-float {
+  animation: icon-float 3.2s ease-in-out infinite;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+@keyframes nav-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-nav-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--tvc-purple) 25%,
+    var(--tvc-pink) 50%,
+    var(--tvc-purple) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: nav-shimmer 6s linear infinite;
+}
