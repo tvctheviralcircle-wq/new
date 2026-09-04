@@ -28,7 +28,7 @@ function BookPage() {
   return (
     <div className="min-h-screen bg-black">
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-7xl items-start justify-between px-4 pt-0 pb-[0.5cm] sm:px-6">
           <Link to="/" className="flex items-center gap-2">
             <img
               src="https://assets-2-prod.whop.com/public/uploads/2025-05-14/user_3134765_25927faf-e31d-42f4-87d5-4a0552277e08.jpeg"

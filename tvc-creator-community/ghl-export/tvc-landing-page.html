@@ -50,6 +50,15 @@
     50% { transform: translateY(-6px) rotate(-4deg); }
   }
   @keyframes tvc-nav-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes tvc-button-pop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  @keyframes tvc-arrow-slide {
+    0% { transform: translateX(0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateX(10px); opacity: 0; }
+  }
 
   .tvc-marquee-track { animation: tvc-marquee 22s linear infinite; }
   .tvc-marquee-brands { animation: tvc-marquee 150s linear infinite; }
@@ -230,7 +239,16 @@
   .tvc-pb-copy { text-align: left; display: flex; flex-direction: column; justify-content: center; }
   .tvc-pb-copy__eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #e879f9; margin: 0; }
   .tvc-pb-copy h3 { font-family: 'Anton','Inter',sans-serif; margin: 8px 0 0; font-size: 20px; text-transform: uppercase; line-height: 1.3; color: #fff; }
-  .tvc-pb-copy__btn { margin-top: 24px; width: 100%; padding: 14px 24px; font-size: 14px; }
+  .tvc-pb-copy__btn { margin-top: 24px; width: 100%; padding: 14px 24px; font-size: 14px; gap: 4px; animation: tvc-button-pop 1.2s ease-in-out infinite; }
+  .tvc-pb-copy__btn:hover, .tvc-pb-copy__btn:active { transform: none; }
+  .tvc-pb-arrow {
+    position: relative; margin-left: 4px; display: inline-block; height: 16px; width: 16px;
+    flex-shrink: 0; overflow: hidden; vertical-align: middle;
+  }
+  .tvc-pb-arrow span {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; line-height: 1; animation: tvc-arrow-slide 1s linear infinite;
+  }
   .tvc-pb-art { position: relative; display: flex; align-items: center; justify-content: center; }
   @media (min-width: 640px) {
     .tvc-pb-panel { border-radius: 24px; margin-top: 48px; }
@@ -672,7 +690,10 @@
             <p class="tvc-pb-copy__eyebrow">What's Inside</p>
             <h3>Everything That Happens After A Creator Says Yes</h3>
             <div>
-              <button type="button" id="tvcPlaybookBtn" class="tvc-btn tvc-gradient-bg tvc-pb-copy__btn">Get My Free Playbook</button>
+              <button type="button" id="tvcPlaybookBtn" class="tvc-btn tvc-gradient-bg tvc-pb-copy__btn">
+                <span>Email Me Free Playbook</span>
+                <span class="tvc-pb-arrow"><span>&rarr;</span></span>
+              </button>
             </div>
           </div>
 
@@ -899,7 +920,7 @@
   <section class="tvc-section tvc-section--black">
     <div class="tvc-section__glow" style="opacity:.6;background:radial-gradient(50% 50% at 15% 10%, rgba(124,42,248,.2) 0%, rgba(6,1,7,0) 70%), radial-gradient(45% 45% at 90% 90%, rgba(236,31,160,.2) 0%, rgba(6,1,7,0) 70%);"></div>
     <div class="tvc-inner-max-lg" style="position:relative;text-align:center;">
-      <p class="tvc-eyebrow">Creators Community In Action</p>
+      <p class="tvc-eyebrow">Creator Communities In Action</p>
       <h2 class="tvc-h2 tvc-display tvc-center" style="max-width:760px;">Same shops, same samples, different system.</h2>
 
       <div class="tvc-cia-grid">

@@ -42,7 +42,7 @@ export function CommunityInAction() {
 
       <div className="mx-auto max-w-5xl text-center">
         <p className="mb-2.5 text-xs font-bold uppercase tracking-wide text-fuchsia-400 sm:mb-3 sm:text-sm">
-          Creators Community In Action
+          Creator Communities In Action
         </p>
         <h2 className="font-display mx-auto max-w-3xl text-2xl uppercase leading-tight text-white sm:text-3xl md:text-4xl">
           Same shops, same samples, different system.

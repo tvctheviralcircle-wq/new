@@ -160,9 +160,15 @@ export function Playbook() {
               <div className="mt-6 sm:mt-8">
                 <button
                   type="button"
-                  className="gradient-bg inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-xl shadow-fuchsia-900/40 transition-transform hover:scale-105 active:scale-105 sm:w-auto sm:px-8"
+                  onClick={(e) => e.preventDefault()}
+                  className="gradient-bg animate-button-pop inline-flex w-full items-center justify-center gap-1 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-xl shadow-fuchsia-900/40 sm:w-auto sm:px-8"
                 >
-                  Get My Free Playbook
+                  <span>Email Me Free Playbook</span>
+                  <span className="relative ml-1 inline-block h-4 w-4 shrink-0 overflow-hidden align-middle">
+                    <span className="animate-arrow-slide absolute inset-0 flex items-center justify-center text-base leading-none">
+                      →
+                    </span>
+                  </span>
                 </button>
               </div>
             </div>

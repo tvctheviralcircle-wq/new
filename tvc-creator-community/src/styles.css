@@ -147,3 +147,35 @@ body {
   background-size: 200% 100%;
   animation: nav-shimmer 6s linear infinite;
 }
+
+@keyframes button-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.animate-button-pop {
+  animation: button-pop 1.2s ease-in-out infinite;
+}
+
+@keyframes arrow-slide {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+}
+
+.animate-arrow-slide {
+  animation: arrow-slide 1s linear infinite;
+}
