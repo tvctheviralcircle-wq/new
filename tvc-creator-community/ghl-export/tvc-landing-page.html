@@ -20,10 +20,7 @@
   #tvc-root img { max-width: 100%; display: block; }
   #tvc-root ul { list-style: none; margin: 0; padding: 0; }
 
-  #tvc-root .tvc-display {
-    font-family: 'Anton', 'Inter', sans-serif;
-    letter-spacing: 0.01em;
-  }
+  #tvc-root .tvc-display { font-family: 'Anton', 'Inter', sans-serif; letter-spacing: 0.01em; }
   #tvc-root .tvc-gradient-text {
     background-image: var(--tvc-gradient-text);
     -webkit-background-clip: text;
@@ -42,22 +39,8 @@
     background-size: 26px 26px;
   }
 
-  /* GHL native form: place it anywhere in the page, then hide it visually with this class.
-     Keep it in the DOM — the bridge script needs its real inputs to exist. */
-  #tvc-root .tvc-ghl-native-form,
-  .tvc-ghl-native-form {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0,0,0,0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-  }
-
   @keyframes tvc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes tvc-marquee-reverse { from { transform: translateX(-50%); } to { transform: translateX(0); } }
   @keyframes tvc-live-pulse {
     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,.65), 0 0 6px 1px rgba(239,68,68,.9); }
     50% { opacity: .35; box-shadow: 0 0 0 0 rgba(239,68,68,0), 0 0 2px 0 rgba(239,68,68,.4); }
@@ -69,6 +52,8 @@
   @keyframes tvc-nav-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
   .tvc-marquee-track { animation: tvc-marquee 22s linear infinite; }
+  .tvc-marquee-brands { animation: tvc-marquee 150s linear infinite; }
+  .tvc-marquee-brands-rev { animation: tvc-marquee-reverse 170s linear infinite; }
   .tvc-live-dot { animation: tvc-live-pulse 1.6s ease-in-out infinite; }
   .tvc-icon-float { animation: tvc-icon-float 3.2s ease-in-out infinite; }
   .tvc-nav-shimmer {
@@ -89,17 +74,22 @@
     border: none; cursor: pointer; border-radius: 999px;
     font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
     color: #fff; box-shadow: 0 12px 30px -8px rgba(124,42,248,.45);
-    transition: transform .2s ease;
+    transition: transform .2s ease; font-family: inherit;
   }
   .tvc-btn:hover, .tvc-btn:active { transform: scale(1.04); }
 
   /* ---------- NAV ---------- */
   .tvc-nav { position: sticky; top: 0; z-index: 50; width: 100%; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.7); backdrop-filter: blur(10px); }
-  .tvc-nav__inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+  .tvc-nav__inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; padding: 0 16px 0.5cm; }
   .tvc-nav__logo-wrap { padding: 1.5px; border-radius: 999px; transition: transform .3s ease; }
   .tvc-nav__logo-wrap:hover { transform: scale(1.1); }
-  .tvc-nav__logo { width: 36px; height: 36px; border-radius: 999px; object-fit: cover; }
-  .tvc-nav__cta { padding: 10px 20px; font-size: 13px; }
+  .tvc-nav__logo { width: 28px; height: 28px; border-radius: 999px; object-fit: cover; }
+  .tvc-nav__cta { padding: 8px 14px; font-size: 11px; margin-top: 8px; }
+  @media (min-width: 640px) {
+    .tvc-nav__inner { padding: 0 24px 0.5cm; }
+    .tvc-nav__logo { width: 36px; height: 36px; }
+    .tvc-nav__cta { padding: 10px 20px; font-size: 14px; }
+  }
 
   /* ---------- HERO ---------- */
   .tvc-hero { position: relative; overflow: hidden; padding: 40px 16px 56px; text-align: center; }
@@ -132,23 +122,27 @@
     border-radius: 10px; box-shadow: 0 20px 45px -12px rgba(88,0,64,.5);
   }
   .tvc-hero__video-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .tvc-hero__unmute {
-    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-    display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+  .tvc-sound-btn {
+    position: absolute; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
     background: rgba(0,0,0,.7); padding: 8px 16px; font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: .03em; color: #fff; backdrop-filter: blur(4px);
-    border: none; cursor: pointer;
+    border: none; cursor: pointer; font-family: inherit; transition: transform .2s ease;
   }
-  .tvc-hero__video-box.tvc-docked .tvc-hero__unmute { bottom: 4px; padding: 4px 8px; font-size: 8px; }
-  .tvc-hero__unmute svg { width: 14px; height: 14px; }
+  .tvc-sound-btn:hover { transform: scale(1.05) translateX(var(--tvc-tx, 0)); }
+  .tvc-unmute-btn { bottom: 12px; left: 50%; transform: translateX(-50%); --tvc-tx: -50%; }
+  .tvc-unmute-btn:hover { transform: translateX(-50%) scale(1.05); }
+  .tvc-mute-btn { left: 12px; top: 12px; }
+  .tvc-hero__video-box.tvc-docked .tvc-sound-btn { padding: 4px 8px; font-size: 8px; }
+  .tvc-hero__video-box.tvc-docked .tvc-unmute-btn { bottom: 4px; }
+  .tvc-hero__video-box.tvc-docked .tvc-mute-btn { left: 4px; top: 4px; }
+  .tvc-hero__video-box.tvc-docked .tvc-sound-btn span { display: none; }
+  .tvc-sound-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
   .tvc-hero__close {
     position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; border-radius: 999px;
     background: rgba(0,0,0,.7); color: rgba(255,255,255,.8); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; z-index: 2;
   }
   .tvc-hero__close svg { width: 12px; height: 12px; }
-  .tvc-hero__spacer { aspect-ratio: 16/9; width: 100%; }
-
   .tvc-hero__cta { margin-top: 28px; width: 100%; padding: 14px 24px; font-size: 14px; }
 
   @media (min-width: 640px) {
@@ -157,6 +151,8 @@
     .tvc-hero__sub { font-size: 18px; }
     .tvc-hero__cta { width: auto; padding: 16px 32px; font-size: 16px; }
     .tvc-hero__video-box.tvc-docked { right: 20px; top: 92px; width: 256px; border-radius: 12px; }
+    .tvc-hero__video-box.tvc-docked .tvc-sound-btn span { display: inline; }
+    .tvc-mute-btn { left: 16px; top: 16px; }
   }
   @media (min-width: 768px) { .tvc-hero h1 { font-size: 60px; } }
 
@@ -165,13 +161,14 @@
   .tvc-ticker__track { display: flex; width: max-content; align-items: center; gap: 24px; white-space: nowrap; }
   .tvc-ticker__item {
     display: flex; align-items: center; gap: 24px; font-size: 12px; text-transform: uppercase; letter-spacing: .03em;
+    font-family: 'Anton','Inter',sans-serif;
     background-image: linear-gradient(90deg, var(--tvc-purple) 0%, var(--tvc-pink) 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .tvc-ticker__sep { height: 16px; width: 1px; background: rgba(0,0,0,.2); flex-shrink: 0; -webkit-text-fill-color: initial; }
   @media (min-width: 640px) { .tvc-ticker { padding: 16px 0; } .tvc-ticker__item { font-size: 16px; gap: 40px; } .tvc-ticker__track { gap: 40px; } }
 
-  /* ---------- generic section shell ---------- */
+  /* ---------- section shell ---------- */
   .tvc-section { position: relative; border-top: 1px solid rgba(255,255,255,.1); padding: 56px 16px; overflow: hidden; }
   .tvc-section--soft { background: var(--tvc-bg-soft); }
   .tvc-section--black { background: #000; }
@@ -181,10 +178,7 @@
   .tvc-center { text-align: center; margin-left: auto; margin-right: auto; }
   .tvc-body { margin-top: 20px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,.7); }
   .tvc-body p + p { margin-top: 16px; }
-  .tvc-quote {
-    margin-top: 24px; border-left: 2px solid #d946ef; padding-left: 16px;
-    font-size: 16px; font-weight: 600; line-height: 1.4; color: #fff;
-  }
+  .tvc-quote { margin-top: 24px; border-left: 2px solid #d946ef; padding-left: 16px; font-size: 16px; font-weight: 600; line-height: 1.4; color: #fff; }
   @media (min-width: 640px) {
     .tvc-section { padding: 96px 24px; }
     .tvc-h2 { font-size: 32px; }
@@ -211,14 +205,13 @@
   .tvc-cycle-footer svg { width: 18px; height: 18px; flex-shrink: 0; }
   @media (min-width: 640px) { .tvc-cycle-card { padding: 32px 40px; } .tvc-cycle-grid { gap: 20px; } .tvc-cycle-item { padding: 24px; } }
 
-  /* ---------- SHIFT: bet vs owned ---------- */
+  /* ---------- SHIFT ---------- */
   .tvc-bet-grid { margin-top: 32px; display: grid; gap: 16px; }
   @media (min-width: 640px) { .tvc-bet-grid { grid-template-columns: 1fr 1fr; gap: 24px; } }
   .tvc-bet-card { border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.4); padding: 20px; }
   .tvc-bet-card--owned { border: none; background: var(--tvc-card); }
   .tvc-bet-card p { margin: 0; }
   .tvc-bet-card__label { font-family: 'Anton','Inter',sans-serif; font-size: 13px; text-transform: uppercase; color: rgba(255,255,255,.5); }
-  .tvc-bet-card--owned .tvc-bet-card__label { color: #f0abfc; }
   .tvc-bet-card__note { margin-top: 4px !important; font-size: 11px; color: rgba(255,255,255,.4); }
   .tvc-bet-months { margin-top: 20px; display: flex; align-items: center; justify-content: space-between; }
   .tvc-bet-month { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -230,7 +223,74 @@
   .tvc-bet-card__footer { margin-top: 20px; font-size: 12px; color: rgba(255,255,255,.5); }
   .tvc-bet-card--owned .tvc-bet-card__footer { color: rgba(255,255,255,.7); }
 
-  /* ---------- FEATURE CARD GRIDS (build / stats) ---------- */
+  /* ---------- PLAYBOOK ---------- */
+  .tvc-pb-panel { position: relative; overflow: hidden; border-radius: 16px; margin-top: 32px; }
+  .tvc-pb-panel__glow { position: absolute; inset: 0; pointer-events: none; opacity: .7; background: radial-gradient(50% 60% at 90% 20%, rgba(6,1,7,.35) 0%, transparent 70%); }
+  .tvc-pb-grid { position: relative; display: grid; grid-template-columns: 1fr; gap: 32px; padding: 24px; }
+  .tvc-pb-copy { text-align: left; display: flex; flex-direction: column; justify-content: center; }
+  .tvc-pb-copy__eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #e879f9; margin: 0; }
+  .tvc-pb-copy h3 { font-family: 'Anton','Inter',sans-serif; margin: 8px 0 0; font-size: 20px; text-transform: uppercase; line-height: 1.3; color: #fff; }
+  .tvc-pb-copy__btn { margin-top: 24px; width: 100%; padding: 14px 24px; font-size: 14px; }
+  .tvc-pb-art { position: relative; display: flex; align-items: center; justify-content: center; }
+  @media (min-width: 640px) {
+    .tvc-pb-panel { border-radius: 24px; margin-top: 48px; }
+    .tvc-pb-grid { grid-template-columns: 1fr 1fr; align-items: center; padding: 40px; gap: 24px; }
+    .tvc-pb-copy h3 { font-size: 24px; }
+    .tvc-pb-copy__btn { width: auto; padding: 14px 32px; }
+  }
+  @media (min-width: 768px) { .tvc-pb-grid { padding: 56px; } }
+
+  .tvc-book-wrap { position: relative; margin: 0 auto; display: flex; height: 100%; min-height: 280px; width: 100%; max-width: 300px; align-items: center; justify-content: center; }
+  .tvc-ring { pointer-events: none; position: absolute; right: -10%; top: 50%; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); margin-top: 0; }
+  .tvc-ring--1 { width: 288px; height: 288px; margin-top: -144px; }
+  .tvc-ring--2 { width: 208px; height: 208px; margin-top: -104px; }
+  .tvc-ring--3 { width: 128px; height: 128px; margin-top: -64px; border-color: rgba(255,255,255,.1); }
+  .tvc-book {
+    position: relative; width: 100%; max-width: 220px; border-radius: 12px;
+    background: var(--tvc-bg-soft); padding: 16px; cursor: pointer;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+    transition: transform 75ms ease-out;
+  }
+  .tvc-book__glow {
+    pointer-events: none; position: absolute; inset: -16px; border-radius: 16px;
+    opacity: 0; filter: blur(16px); transition: opacity .3s ease;
+    background: linear-gradient(135deg, rgba(236,31,160,.8) 0%, rgba(124,42,248,.8) 50%, rgba(236,31,160,.8) 100%);
+  }
+  .tvc-book:hover .tvc-book__glow, .tvc-book:active .tvc-book__glow { opacity: .9; }
+  .tvc-book__logo { position: relative; width: 32px; height: 32px; border-radius: 999px; object-fit: cover; }
+  .tvc-book__kicker { position: relative; margin: 16px 0 0; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.5); }
+  .tvc-book__title { position: relative; font-family: 'Anton','Inter',sans-serif; margin: 6px 0 0; font-size: 16px; text-transform: uppercase; line-height: 1.3; color: #fff; }
+  .tvc-book__rule { position: relative; margin-top: 16px; height: 1px; width: 100%; background: rgba(255,255,255,.15); }
+  .tvc-book__seal { position: relative; margin-top: 24px; display: flex; justify-content: center; }
+  .tvc-book__seal-outer { display: flex; width: 56px; height: 56px; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); }
+  .tvc-book__seal-inner { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 999px; }
+  .tvc-book__seal-inner svg { width: 16px; height: 16px; color: #fff; }
+  .tvc-book__foot { position: relative; margin: 24px 0 0; text-align: center; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.4); }
+  @media (min-width: 640px) {
+    .tvc-book-wrap { min-height: 340px; }
+    .tvc-ring--1 { width: 384px; height: 384px; margin-top: -192px; }
+    .tvc-ring--2 { width: 288px; height: 288px; margin-top: -144px; }
+    .tvc-ring--3 { width: 192px; height: 192px; margin-top: -96px; }
+    .tvc-book { max-width: 240px; padding: 20px; }
+    .tvc-book__title { font-size: 18px; }
+  }
+
+  .tvc-pb-stats { position: relative; display: flex; flex-direction: column; align-items: center; gap: 24px; background: rgba(0,0,0,.25); padding: 24px; }
+  .tvc-pb-stats__pill { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); padding: 6px 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #e879f9; }
+  .tvc-pb-stats__row { display: flex; align-items: center; gap: 24px; }
+  .tvc-pb-stat { text-align: center; }
+  .tvc-pb-stat__num { font-family: 'Anton','Inter',sans-serif; margin: 0; font-size: 20px; color: #e879f9; }
+  .tvc-pb-stat__label { margin: 2px 0 0; font-size: 9px; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.6); }
+  .tvc-pb-stats__div { width: 1px; height: 32px; background: rgba(255,255,255,.2); }
+  @media (min-width: 640px) {
+    .tvc-pb-stats { flex-direction: row; justify-content: space-between; padding: 24px 40px; }
+    .tvc-pb-stats__row { gap: 40px; }
+    .tvc-pb-stats__pill { font-size: 12px; }
+    .tvc-pb-stat__num { font-size: 24px; }
+    .tvc-pb-stat__label { font-size: 10px; }
+  }
+
+  /* ---------- FEATURE CARDS ---------- */
   .tvc-feature-grid { margin-top: 32px; display: grid; gap: 16px; max-width: 900px; margin-left: auto; margin-right: auto; }
   @media (min-width: 640px) { .tvc-feature-grid { grid-template-columns: 1fr 1fr; gap: 20px; } }
   .tvc-feature-card { border-radius: 16px; background: var(--tvc-card); padding: 20px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.4); transition: transform .3s ease; }
@@ -239,7 +299,6 @@
   @media (min-width: 640px) { .tvc-feature-card { padding: 24px; } .tvc-feature-card p { font-size: 18px; } }
 
   .tvc-icon-tile { width: 40px; height: 40px; box-shadow: 0 12px 24px -8px rgba(124,42,248,.45); }
-  .tvc-icon-tile--sm { width: 36px; height: 36px; }
   .tvc-icon-tile--lg { width: 44px; height: 44px; }
 
   /* ---------- PROCESS ---------- */
@@ -261,7 +320,51 @@
   .tvc-step-card h3 { font-family: 'Anton','Inter',sans-serif; font-size: 16px; text-transform: uppercase; color: #fff; margin: 0; }
   .tvc-step-card p { margin-top: 8px; font-size: 14px; line-height: 1.6; color: rgba(255,255,255,.6); }
 
-  /* ---------- STANDOUT (agency vs us) ---------- */
+  /* ---------- TRUSTED BY ---------- */
+  .tvc-trusted { border-top: 1px solid rgba(255,255,255,.1); background: #000; padding: 48px 16px; overflow: hidden; position: relative; }
+  @media (min-width: 640px) { .tvc-trusted { padding: 64px 24px; } }
+  .tvc-trusted__head { max-width: 1000px; margin: 0 auto; text-align: center; }
+  .tvc-trusted__rating {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    column-gap: 8px; row-gap: 4px; margin: 0; font-size: 12px; text-transform: uppercase;
+    letter-spacing: .03em; color: #fff;
+  }
+  .tvc-trusted__stars { font-size: 14px; letter-spacing: normal; }
+  .tvc-trusted__score { font-weight: 700; }
+  @media (min-width: 640px) { .tvc-trusted__rating { font-size: 16px; } .tvc-trusted__stars { font-size: 18px; } }
+
+  .tvc-belt { margin-top: 32px; overflow: hidden; }
+  .tvc-belt + .tvc-belt { margin-top: 16px; }
+  .tvc-belt__track { display: flex; width: max-content; align-items: center; }
+  .tvc-belt:hover .tvc-belt__track { animation-play-state: paused; }
+  .tvc-logo { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; }
+  .tvc-logo--md { width: 112px; height: 56px; margin-right: 16px; }
+  .tvc-logo--lg { width: 192px; height: 96px; margin-right: 12px; }
+  .tvc-logo__glow {
+    pointer-events: none; position: absolute; inset: 0; border-radius: 999px;
+    transform: scale(.75); opacity: 0; filter: blur(12px); transition: all .3s ease;
+    background: radial-gradient(circle, rgba(124,42,248,.45) 0%, rgba(236,31,160,.35) 55%, transparent 80%);
+  }
+  .tvc-logo:hover .tvc-logo__glow { transform: scale(1); opacity: 1; }
+  .tvc-logo img {
+    position: relative; width: auto; object-fit: contain; opacity: .6;
+    filter: brightness(0) invert(1); transition: all .3s ease;
+  }
+  .tvc-logo:hover img { transform: scale(1.1); opacity: 1; }
+  .tvc-logo--md img { max-height: 28px; }
+  .tvc-logo--md.tvc-logo--big img { max-height: 36px; }
+  .tvc-logo--lg img { max-height: 56px; }
+  @media (min-width: 640px) {
+    .tvc-belt { margin-top: 40px; }
+    .tvc-belt + .tvc-belt { margin-top: 24px; }
+    .tvc-logo--md { width: 128px; height: 64px; margin-right: 24px; }
+    .tvc-logo--lg { width: 224px; height: 112px; margin-right: 16px; }
+    .tvc-logo--md img { max-height: 32px; }
+    .tvc-logo--md.tvc-logo--big img { max-height: 40px; }
+    .tvc-logo--lg img { max-height: 64px; }
+  }
+
+  /* ---------- STANDOUT ---------- */
   .tvc-standout__sub { max-width: 560px; margin: 12px auto 0; text-align: center; font-size: 14px; font-style: italic; color: rgba(255,255,255,.6); }
   .tvc-vs-wrap { position: relative; margin-top: 40px; display: grid; gap: 24px; max-width: 900px; margin-left: auto; margin-right: auto; }
   @media (min-width: 640px) { .tvc-vs-wrap { grid-template-columns: 1fr 1fr; gap: 32px; } }
@@ -274,7 +377,6 @@
   .tvc-compare-card { border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); padding: 20px; transition: all .3s ease; }
   .tvc-compare-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,.2); }
   .tvc-compare-card--brand { border: none; background: var(--tvc-card); }
-  .tvc-compare-card--brand:hover { border: none; }
   .tvc-compare-head { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: rgba(255,255,255,.05); padding: 6px 14px; margin-bottom: 20px; }
   .tvc-compare-card--brand .tvc-compare-head { background: none; }
   .tvc-compare-head svg { width: 18px; height: 18px; }
@@ -284,11 +386,11 @@
   .tvc-num-badge { width: 32px; height: 32px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
   .tvc-num-badge--muted { background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); }
   .tvc-num-badge--brand { color: #fff; }
-  .tvc-compare-list span.tvc-compare-text { margin-top: 4px; font-size: 14px; color: rgba(255,255,255,.6); }
+  .tvc-compare-text { margin-top: 4px; font-size: 14px; color: rgba(255,255,255,.6); }
   .tvc-compare-card--brand .tvc-compare-text { color: rgba(255,255,255,.85); font-weight: 500; }
   @media (min-width: 640px) { .tvc-compare-card { padding: 32px; } }
 
-  /* ---------- GUARANTEE stats ---------- */
+  /* ---------- GUARANTEE ---------- */
   .tvc-guarantee { text-align: center; }
   .tvc-guarantee__badge { margin: 0 auto 20px; width: 48px; height: 48px; box-shadow: 0 15px 30px -8px rgba(124,42,248,.45); }
   .tvc-guarantee__badge svg { width: 26px; height: 26px; }
@@ -301,6 +403,36 @@
   .tvc-stat-card__value span { margin-left: 4px; font-size: 18px; text-transform: uppercase; color: rgba(255,255,255,.7); }
   .tvc-stat-card p { margin-top: 12px; font-size: 14px; color: rgba(255,255,255,.7); }
   .tvc-guarantee__foot { max-width: 640px; margin: 32px auto 0; font-size: 15px; color: rgba(255,255,255,.7); }
+
+  /* ---------- COMMUNITY IN ACTION ---------- */
+  .tvc-cia-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 36px; }
+  .tvc-cia-grid + .tvc-cia-grid { margin-top: 24px; }
+  @media (min-width: 640px) { .tvc-cia-grid { grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; } .tvc-cia-grid + .tvc-cia-grid { margin-top: 32px; } }
+  .tvc-shot { position: relative; display: block; width: 100%; padding: 0; border: none; background: none; cursor: pointer; text-align: left; }
+  .tvc-shot__glow {
+    pointer-events: none; position: absolute; inset: -8px; border-radius: 16px;
+    opacity: .4; filter: blur(16px); transition: all .3s ease;
+    background: radial-gradient(circle, rgba(124,42,248,.55) 0%, rgba(236,31,160,.45) 55%, transparent 80%);
+  }
+  .tvc-shot:hover .tvc-shot__glow { inset: -16px; opacity: .9; }
+  .tvc-shot__frame { position: relative; overflow: hidden; border-radius: 12px; transition: transform .3s ease; }
+  .tvc-shot:hover .tvc-shot__frame { transform: scale(1.02); }
+  .tvc-shot__frame img { width: 100%; object-fit: cover; }
+  @media (min-width: 640px) { .tvc-shot__frame { border-radius: 16px; } }
+
+  .tvc-lightbox {
+    display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.85); backdrop-filter: blur(4px); padding: 16px;
+  }
+  .tvc-lightbox.tvc-open { display: flex; }
+  .tvc-lightbox img { max-height: 85vh; max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); object-fit: contain; box-shadow: 0 30px 80px -20px rgba(0,0,0,.8); }
+  .tvc-lightbox__close {
+    position: absolute; left: 16px; top: 16px; width: 40px; height: 40px; border-radius: 999px;
+    background: rgba(255,255,255,.1); color: #fff; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+  }
+  .tvc-lightbox__close svg { width: 20px; height: 20px; }
+  @media (min-width: 640px) { .tvc-lightbox { padding: 32px; } .tvc-lightbox__close { left: 24px; top: 24px; } }
 
   /* ---------- WHO FOR ---------- */
   .tvc-fit-grid { margin-top: 32px; display: grid; gap: 16px; max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -337,7 +469,7 @@
   .tvc-founder__signoff { margin-top: 20px !important; font-family: 'Anton','Inter',sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: #e879f9; }
   @media (min-width: 640px) { .tvc-founder__photo { width: 112px; height: 112px; } .tvc-founder__card { padding: 32px; } .tvc-founder__card p { font-size: 18px; } }
 
-  /* ---------- WHY NOW / chart ---------- */
+  /* ---------- WHY NOW ---------- */
   .tvc-chart-card { position: relative; margin-top: 32px; overflow: hidden; border-radius: 16px; background: var(--tvc-card); padding: 16px; }
   .tvc-chart-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .tvc-chart-head__icon { width: 32px; height: 32px; border-radius: 999px; background: rgba(244,63,94,.15); color: #fb7185; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -346,11 +478,11 @@
   .tvc-chart-head__title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.4); }
   .tvc-chart-head__desc { font-size: 12px; color: rgba(255,255,255,.5); }
   .tvc-chart-labels { margin-top: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 9px; text-transform: uppercase; color: rgba(255,255,255,.4); }
-  @media (min-width: 640px) { .tvc-chart-card { padding: 32px; } }
+  @media (min-width: 640px) { .tvc-chart-card { padding: 32px; } .tvc-chart-labels { font-size: 11px; } }
 
   /* ---------- FINAL CTA ---------- */
   .tvc-final { text-align: center; }
-  .tvc-final h2 { font-size: 24px; }
+  .tvc-final h2 { font-size: 24px; text-transform: uppercase; line-height: 1.25; margin: 0; }
   .tvc-final__body { max-width: 640px; margin: 20px auto 0; font-size: 14px; color: rgba(255,255,255,.7); }
   .tvc-final__body p + p { margin-top: 12px; }
   .tvc-final__cta { margin-top: 28px; width: 100%; padding: 16px 28px; font-size: 14px; }
@@ -363,39 +495,6 @@
   .tvc-footer__brand { font-family: 'Anton','Inter',sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.6); margin: 0; }
   .tvc-footer__copy { margin: 8px 0 0; font-size: 11px; color: rgba(255,255,255,.3); }
 
-  /* ---------- MODAL ---------- */
-  .tvc-modal-overlay {
-    display: none; position: fixed; inset: 0; z-index: 1000; align-items: center; justify-content: center;
-    overflow-y: auto; background: rgba(0,0,0,.8); backdrop-filter: blur(4px); padding: 16px;
-  }
-  .tvc-modal-overlay.tvc-open { display: flex; }
-  .tvc-modal-backdrop { position: absolute; inset: 0; border: none; background: transparent; cursor: default; }
-  .tvc-modal { position: relative; width: 100%; max-width: 440px; border-radius: 16px; background: var(--tvc-card); padding: 24px; box-shadow: 0 30px 80px -20px rgba(88,0,64,.5); }
-  .tvc-modal__close { position: absolute; right: 16px; top: 16px; width: 32px; height: 32px; border-radius: 999px; background: rgba(255,255,255,.05); color: rgba(255,255,255,.6); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .tvc-modal__close svg { width: 16px; height: 16px; }
-  .tvc-modal__eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #e879f9; margin: 0; }
-  .tvc-modal h2 { font-family: 'Anton','Inter',sans-serif; font-size: 24px; text-transform: uppercase; margin: 8px 0 0; color: #fff; }
-  .tvc-modal__desc { margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,.6); }
-  .tvc-modal form { margin-top: 24px; }
-  .tvc-field { margin-top: 16px; }
-  .tvc-field:first-child { margin-top: 0; }
-  .tvc-field label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: rgba(255,255,255,.5); }
-  .tvc-field input[type="text"], .tvc-field input[type="email"] {
-    width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.3);
-    padding: 10px 14px; font-size: 14px; color: #fff; outline: none;
-  }
-  .tvc-field input::placeholder { color: rgba(255,255,255,.3); }
-  .tvc-field input:focus { border-color: #d946ef; }
-  .tvc-yesno { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .tvc-yesno button {
-    border-radius: 8px; padding: 10px 0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
-    cursor: pointer; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.3); color: rgba(255,255,255,.6);
-  }
-  .tvc-yesno button.tvc-selected { border: none; color: #fff; }
-  .tvc-modal__error { margin-top: 12px; font-size: 14px; font-weight: 500; color: #fb7185; }
-  .tvc-modal__submit { margin-top: 16px; width: 100%; padding: 14px 24px; font-size: 14px; }
-  .tvc-modal__submit:disabled { opacity: .6; cursor: default; }
-
   #tvc-root [hidden] { display: none !important; }
 </style>
 
@@ -407,7 +506,7 @@
       <div class="tvc-gradient-border tvc-nav__logo-wrap">
         <img class="tvc-nav__logo" src="https://assets-2-prod.whop.com/public/uploads/2025-05-14/user_3134765_25927faf-e31d-42f4-87d5-4a0552277e08.jpeg" alt="The Viral Circle" />
       </div>
-      <button type="button" class="tvc-btn tvc-gradient-bg tvc-nav__cta" data-tvc-open-modal>See If You Qualify →</button>
+      <button type="button" class="tvc-btn tvc-gradient-bg tvc-nav__cta" data-tvc-scroll-book>See If You Qualify →</button>
     </div>
     <div class="tvc-nav-shimmer"></div>
   </header>
@@ -432,24 +531,30 @@
         <div id="tvcHeroVideoAnchor"></div>
         <div id="tvcHeroVideoBox" class="tvc-hero__video-box">
           <video id="tvcHeroVideo" src="https://assets-2-prod.whop.com/public/uploads/2026-08-31/1ca0cafc-a140-4706-a55f-557584f5044f/video.mp4" autoplay muted loop playsinline preload="auto"></video>
-          <button type="button" id="tvcHeroUnmute" class="tvc-hero__unmute" aria-label="Tap for sound">
+
+          <button type="button" id="tvcUnmuteBtn" class="tvc-sound-btn tvc-unmute-btn" aria-label="Tap for sound">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-3.5ZM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77ZM3 9v6h4l5 5V4L7 9H3Z"/></svg>
             <span>Tap for sound</span>
           </button>
+
+          <button type="button" id="tvcMuteBtn" class="tvc-sound-btn tvc-mute-btn" aria-label="Mute" hidden>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.42.05-.63Zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71ZM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L18.73 21 20 19.73l-9-9L4.27 3ZM12 4l-1.88 1.88L12 7.76V4Z"/></svg>
+            <span>Mute</span>
+          </button>
+
           <button type="button" id="tvcHeroCloseFloat" class="tvc-hero__close" aria-label="Close video" hidden>
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.29 1.41 1.41 6.3-6.29 6.3 6.29 1.41-1.41-6.3-6.29 6.3-6.3z"/></svg>
           </button>
         </div>
       </div>
 
-      <button type="button" class="tvc-btn tvc-gradient-bg tvc-hero__cta" data-tvc-open-modal>See If You Qualify →</button>
+      <button type="button" class="tvc-btn tvc-gradient-bg tvc-hero__cta" data-tvc-scroll-book>See If You Qualify →</button>
     </div>
   </section>
 
   <!-- SECTION: TICKER -->
   <div class="tvc-ticker">
     <div class="tvc-ticker__track tvc-marquee-track">
-      <!-- items duplicated x2 for a seamless loop -->
       <span class="tvc-ticker__item">MORE CREATORS POSTING<span class="tvc-ticker__sep"></span></span>
       <span class="tvc-ticker__item">AN ASSET YOU OWN<span class="tvc-ticker__sep"></span></span>
       <span class="tvc-ticker__item">ACTIVE, NOT ABANDONED<span class="tvc-ticker__sep"></span></span>
@@ -515,7 +620,7 @@
     <div class="tvc-section__glow" style="opacity:.7;background:radial-gradient(45% 55% at 85% 10%, rgba(236,31,160,.2) 0%, rgba(6,1,7,0) 70%), radial-gradient(40% 45% at 10% 90%, rgba(124,42,248,.22) 0%, rgba(6,1,7,0) 70%);"></div>
     <div class="tvc-inner-max-sm" style="position:relative;">
       <p class="tvc-eyebrow">The Shift</p>
-      <h2 class="tvc-h2 tvc-display">You've been told winning means recruiting more creators. It doesn't.</h2>
+      <h2 class="tvc-h2 tvc-display">Does winning on TikTok Shop mean recruiting more creators? It doesn't.</h2>
       <div class="tvc-body">
         <p>Look at the brands actually pulling ahead on TikTok Shop right now, and it's not what you'd expect. They're not adding new names to a list every week. They're keeping the creators they already have posting, again and again.</p>
         <p>That's it really. That's the whole thing almost nobody's doing with purpose.</p>
@@ -546,6 +651,76 @@
       </div>
 
       <p class="tvc-quote">That's what an owned community actually is. And it has to be yours, not an agency's, because the day you stop paying someone to run it, it doesn't pause, it leaves. With them, not with you.</p>
+    </div>
+  </section>
+
+  <!-- SECTION: PLAYBOOK -->
+  <section class="tvc-section tvc-section--black">
+    <div class="tvc-inner-max-sm" style="position:relative;">
+      <p class="tvc-eyebrow">The Playbook</p>
+      <h2 class="tvc-h2 tvc-display">Why the second post never comes, and what changes it</h2>
+      <p class="tvc-body" style="margin-top:16px;">
+        <span style="font-weight:700;text-transform:uppercase;color:#e879f9;">Free Playbook.</span>
+        The exact one we're running for brands right now.
+      </p>
+
+      <div class="tvc-gradient-bg tvc-dot-grid tvc-pb-panel">
+        <div class="tvc-pb-panel__glow"></div>
+
+        <div class="tvc-pb-grid">
+          <div class="tvc-pb-copy">
+            <p class="tvc-pb-copy__eyebrow">What's Inside</p>
+            <h3>Everything That Happens After A Creator Says Yes</h3>
+            <div>
+              <button type="button" id="tvcPlaybookBtn" class="tvc-btn tvc-gradient-bg tvc-pb-copy__btn">Get My Free Playbook</button>
+            </div>
+          </div>
+
+          <div class="tvc-pb-art">
+            <div class="tvc-book-wrap" id="tvcBookWrap">
+              <div class="tvc-ring tvc-ring--1" id="tvcRing1"></div>
+              <div class="tvc-ring tvc-ring--2" id="tvcRing2"></div>
+              <div class="tvc-ring tvc-ring--3" id="tvcRing3"></div>
+
+              <div class="tvc-gradient-border tvc-book" id="tvcBook">
+                <span class="tvc-book__glow"></span>
+                <img class="tvc-book__logo" src="https://assets-2-prod.whop.com/public/uploads/2025-05-14/user_3134765_25927faf-e31d-42f4-87d5-4a0552277e08.jpeg" alt="The Viral Circle" />
+                <p class="tvc-book__kicker">Free Playbook</p>
+                <p class="tvc-book__title">Why The Second Post Never Comes</p>
+                <div class="tvc-book__rule"></div>
+                <div class="tvc-book__seal">
+                  <div class="tvc-book__seal-outer">
+                    <div class="tvc-book__seal-inner tvc-gradient-bg">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <p class="tvc-book__foot">TikTok Shop Certified Agency</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tvc-pb-stats">
+          <span class="tvc-pb-stats__pill">Free Playbook</span>
+          <div class="tvc-pb-stats__row">
+            <div class="tvc-pb-stat">
+              <p class="tvc-pb-stat__num">4</p>
+              <p class="tvc-pb-stat__label">Creator Stages Mapped</p>
+            </div>
+            <div class="tvc-pb-stats__div"></div>
+            <div class="tvc-pb-stat">
+              <p class="tvc-pb-stat__num">48H</p>
+              <p class="tvc-pb-stat__label">The Activation Window</p>
+            </div>
+            <div class="tvc-pb-stats__div"></div>
+            <div class="tvc-pb-stat">
+              <p class="tvc-pb-stat__num">4 min</p>
+              <p class="tvc-pb-stat__label">Start To Finish</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -599,7 +774,7 @@
             <div class="tvc-icon tvc-icon-tile tvc-icon-tile--lg tvc-gradient-bg tvc-icon-float" style="animation-delay:0s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5Zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14Z"/></svg></div>
             <span class="tvc-step-card__num tvc-display tvc-gradient-text">01</span>
           </div>
-          <h3 class="tvc-display">Recruit</h3>
+          <h3>Recruit</h3>
           <p>We find and onboard 150+ TikTok Shop creators who actually fit your product and your customer, not just whoever clicks "join."</p>
         </div>
         <div class="tvc-step-card">
@@ -607,7 +782,7 @@
             <div class="tvc-icon tvc-icon-tile tvc-icon-tile--lg tvc-gradient-bg tvc-icon-float" style="animation-delay:.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h6v-1H9v1Zm3-19a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Zm2 13H10v-1.5h4V15Zm.36-3.1-.86.62V14h-3v-1.48l-.86-.62A5 5 0 1 1 14.36 11.9Z"/></svg></div>
             <span class="tvc-step-card__num tvc-display tvc-gradient-text">02</span>
           </div>
-          <h3 class="tvc-display">Activate</h3>
+          <h3>Activate</h3>
           <p>We coach them to actually post, not just sign up and disappear. Real follow-through, real guidance, every step of the way.</p>
         </div>
         <div class="tvc-step-card">
@@ -615,9 +790,41 @@
             <div class="tvc-icon tvc-icon-tile tvc-icon-tile--lg tvc-gradient-bg tvc-icon-float" style="animation-delay:.8s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-2V1H7v2H5a1 1 0 0 0-1 1v3a4 4 0 0 0 4 4 5 5 0 0 0 3 3.87V17H9v2H7v2h10v-2h-2v-2h-2v-2.13A5 5 0 0 0 16 11a4 4 0 0 0 4-4V4a1 1 0 0 0-1-1ZM6 7V5h1v4.9A2 2 0 0 1 6 7Zm12 0a2 2 0 0 1-1 1.9V5h1v2Z"/></svg></div>
             <span class="tvc-step-card__num tvc-display tvc-gradient-text">03</span>
           </div>
-          <h3 class="tvc-display">Prove &amp; Own</h3>
+          <h3>Prove &amp; Own</h3>
           <p>30–35% stay active inside 30 days. The whole community gets handed to you, yours to keep, not something you keep renting.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: TRUSTED BY -->
+  <section class="tvc-trusted">
+    <div class="tvc-trusted__head">
+      <p class="tvc-trusted__rating">
+        <span class="tvc-gradient-text tvc-trusted__stars">★★★★★</span>
+        <span class="tvc-trusted__score">4.9</span>
+        <span>Trusted by 50+ Brands</span>
+      </p>
+    </div>
+
+    <div class="tvc-belt">
+      <div class="tvc-belt__track tvc-marquee-brands" id="tvcBelt1">
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/d11434ab-661e-4ba2-8dc4-3907c51d569a/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/2155855c-d8ef-4c1b-8cd8-3279cd90fa02/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/986094aa-9bd5-4a5d-a6b3-dbbdfb81a391/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/3b0ddd79-63bb-4398-a10a-44f62d10841d/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md tvc-logo--big"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/e138dfe6-f3fd-4cc6-a079-2afaeb4f6ab8/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/25c6e2e5-fbe0-4023-8c19-7df314f7ed9c/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--md"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/7d7303b1-d733-4eb9-b1d1-175af23ba366/image.png" alt="Partner brand logo" /></div>
+      </div>
+    </div>
+
+    <div class="tvc-belt">
+      <div class="tvc-belt__track tvc-marquee-brands-rev" id="tvcBelt2">
+        <div class="tvc-logo tvc-logo--lg"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/a8a4df08-a928-443d-bd88-3ce5524a5909/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--lg"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/a1cc6e7c-6a1f-4237-a6ee-e0bfadc014b7/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--lg"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/09fe0680-932a-4f66-b395-912fedba8823/image.png" alt="Partner brand logo" /></div>
+        <div class="tvc-logo tvc-logo--lg"><span class="tvc-logo__glow"></span><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-03/b8972710-68aa-4dc5-9757-f61c21e66b48/image.png" alt="Partner brand logo" /></div>
       </div>
     </div>
   </section>
@@ -645,7 +852,7 @@
         </div>
 
         <div class="tvc-gradient-border tvc-compare-card tvc-compare-card--brand">
-          <div class="tvc-compare-head tvc-gradient-bg" style="border-radius:999px;padding:6px 14px;"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Zm-1.2 13.6-3.2-3.2 1.4-1.4 1.8 1.8 4.8-4.8 1.4 1.4-6.2 6.2Z"/></svg><span>The Viral Circle System</span></div>
+          <div class="tvc-compare-head tvc-gradient-bg"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Zm-1.2 13.6-3.2-3.2 1.4-1.4 1.8 1.8 4.8-4.8 1.4 1.4-6.2 6.2Z"/></svg><span>The Viral Circle System</span></div>
           <ul class="tvc-compare-list">
             <li><div class="tvc-icon tvc-num-badge tvc-num-badge--brand tvc-gradient-bg tvc-icon-float" style="animation-delay:0s;">01</div><span class="tvc-compare-text">Proper welcoming + give creators a reason to stay active</span></li>
             <li><div class="tvc-icon tvc-num-badge tvc-num-badge--brand tvc-gradient-bg tvc-icon-float" style="animation-delay:.3s;">02</div><span class="tvc-compare-text">Intentional segregation and onboarding</span></li>
@@ -685,6 +892,37 @@
       </div>
 
       <p class="tvc-guarantee__foot">No trust required here. Just a number, and a guarantee behind it. If we don't hit it, you don't pay for it. That's the whole deal.</p>
+    </div>
+  </section>
+
+  <!-- SECTION: COMMUNITY IN ACTION -->
+  <section class="tvc-section tvc-section--black">
+    <div class="tvc-section__glow" style="opacity:.6;background:radial-gradient(50% 50% at 15% 10%, rgba(124,42,248,.2) 0%, rgba(6,1,7,0) 70%), radial-gradient(45% 45% at 90% 90%, rgba(236,31,160,.2) 0%, rgba(6,1,7,0) 70%);"></div>
+    <div class="tvc-inner-max-lg" style="position:relative;text-align:center;">
+      <p class="tvc-eyebrow">Creators Community In Action</p>
+      <h2 class="tvc-h2 tvc-display tvc-center" style="max-width:760px;">Same shops, same samples, different system.</h2>
+
+      <div class="tvc-cia-grid">
+        <button type="button" class="tvc-shot" data-tvc-shot="https://assets-2-prod.whop.com/public/uploads/2026-09-04/ef492f97-8bf3-49b5-a01f-417c5a474714/image.png">
+          <span class="tvc-shot__glow"></span>
+          <span class="tvc-gradient-border tvc-shot__frame"><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-04/ef492f97-8bf3-49b5-a01f-417c5a474714/image.png" alt="TVC creator community dashboard" /></span>
+        </button>
+        <button type="button" class="tvc-shot" data-tvc-shot="https://assets-2-prod.whop.com/public/uploads/2026-09-04/c8a8dbb5-b88f-4008-87ed-c8fd6e0e0937/image.png">
+          <span class="tvc-shot__glow"></span>
+          <span class="tvc-gradient-border tvc-shot__frame"><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-04/c8a8dbb5-b88f-4008-87ed-c8fd6e0e0937/image.png" alt="TVC creator community dashboard" /></span>
+        </button>
+      </div>
+
+      <div class="tvc-cia-grid">
+        <button type="button" class="tvc-shot" data-tvc-shot="https://assets-2-prod.whop.com/public/uploads/2026-09-04/0d176176-4752-4c75-b3b9-d29153a479dc/image.png">
+          <span class="tvc-shot__glow"></span>
+          <span class="tvc-gradient-border tvc-shot__frame"><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-04/0d176176-4752-4c75-b3b9-d29153a479dc/image.png" alt="TVC creator community dashboard" /></span>
+        </button>
+        <button type="button" class="tvc-shot" data-tvc-shot="https://assets-2-prod.whop.com/public/uploads/2026-09-04/ac68b28b-23ad-4420-9947-fe91fd0fe7d1/image.png">
+          <span class="tvc-shot__glow"></span>
+          <span class="tvc-gradient-border tvc-shot__frame"><img src="https://assets-2-prod.whop.com/public/uploads/2026-09-04/ac68b28b-23ad-4420-9947-fe91fd0fe7d1/image.png" alt="TVC creator community dashboard" /></span>
+        </button>
+      </div>
     </div>
   </section>
 
@@ -768,13 +1006,30 @@
               <stop offset="0%" stop-color="#c084fc"/>
               <stop offset="100%" stop-color="#ec1fa0"/>
             </linearGradient>
+            <radialGradient id="tvcBallGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+              <stop offset="45%" stop-color="#ec1fa0" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#ec1fa0" stop-opacity="0"/>
+            </radialGradient>
           </defs>
+
           <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
           <path d="M0,20 C100,35 150,55 200,80 C280,115 340,135 400,145 L400,150 L0,150 Z" fill="url(#tvcWindowFill)"/>
-          <path d="M0,20 C100,35 150,55 200,80 C280,115 340,135 400,145" fill="none" stroke="url(#tvcWindowLine)" stroke-width="3"/>
+          <path id="tvcWindowPath" d="M0,20 C100,35 150,55 200,80 C280,115 340,135 400,145" fill="none" stroke="url(#tvcWindowLine)" stroke-width="3"/>
+
           <circle cx="0" cy="20" r="5" fill="#c084fc"/>
-          <circle cx="200" cy="80" r="5" fill="#ec1fa0"/>
           <circle cx="400" cy="145" r="5" fill="#f472b6"/>
+
+          <circle r="16" fill="url(#tvcBallGlow)">
+            <animateMotion dur="3.5s" repeatCount="indefinite">
+              <mpath href="#tvcWindowPath" xlink:href="#tvcWindowPath"/>
+            </animateMotion>
+          </circle>
+          <circle r="5" fill="#ec1fa0">
+            <animateMotion dur="3.5s" repeatCount="indefinite">
+              <mpath href="#tvcWindowPath" xlink:href="#tvcWindowPath"/>
+            </animateMotion>
+          </circle>
         </svg>
         <div class="tvc-chart-labels"><span>Now — window's open</span><span>6 months</span><span>12 months — closed</span></div>
       </div>
@@ -784,66 +1039,30 @@
   </section>
 
   <!-- SECTION: FINAL CTA -->
-  <section class="tvc-section tvc-final" style="background:radial-gradient(60% 60% at 50% 20%, rgba(124,42,248,.4) 0%, rgba(6,1,7,0) 70%);">
+  <section class="tvc-section tvc-final" id="book" style="background:radial-gradient(60% 60% at 50% 20%, rgba(124,42,248,.4) 0%, rgba(6,1,7,0) 70%);">
     <div class="tvc-inner-max-sm">
       <h2 class="tvc-display">A year from now, this is either your advantage or your gap.</h2>
       <div class="tvc-final__body">
         <p>The brands building this right now will be operating on a completely different level than the ones still renting creators month to month.</p>
         <p>So, are you still going to be sending samples out and hoping a year from now? Or are you going to own the thing your competitors are still paying to rent?</p>
       </div>
-      <button type="button" class="tvc-btn tvc-gradient-bg tvc-final__cta" data-tvc-open-modal>Book Your Call →</button>
+      <a class="tvc-btn tvc-gradient-bg tvc-final__cta" id="tvcBookLink" href="/book">Book Your Call →</a>
       <p class="tvc-final__foot">We'll look at your shop, your samples, and your current creators, and map out exactly what this looks like for your brand. No obligation either way. We only take on a few brands at a time, so if this is you, move on it now.</p>
     </div>
   </section>
 
   <!-- SECTION: FOOTER -->
   <footer class="tvc-footer">
-    <p class="tvc-footer__brand tvc-display">The Viral Circle</p>
+    <p class="tvc-footer__brand">The Viral Circle</p>
     <p class="tvc-footer__copy" id="tvcFooterCopy">© The Viral Circle. All rights reserved.</p>
   </footer>
 
-  <!-- SECTION: QUALIFY MODAL -->
-  <div id="tvcModalOverlay" class="tvc-modal-overlay">
-    <button type="button" class="tvc-modal-backdrop" aria-label="Close" data-tvc-close-modal></button>
-    <div class="tvc-gradient-border tvc-modal">
-      <button type="button" class="tvc-modal__close" aria-label="Close" data-tvc-close-modal>
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.29 1.41 1.41 6.3-6.29 6.3 6.29 1.41-1.41-6.3-6.29 6.3-6.3z"/></svg>
-      </button>
-      <p class="tvc-modal__eyebrow">Quick Qualification</p>
-      <h2 class="tvc-display">See If You Qualify</h2>
-      <p class="tvc-modal__desc">Answer a few quick questions and we'll take you straight to the calendar.</p>
-
-      <form id="tvcQualifyForm" autocomplete="on">
-        <div class="tvc-field">
-          <label for="tvcName">Your Name</label>
-          <input type="text" id="tvcName" name="given-name" autocomplete="name" placeholder="Jane Smith" />
-        </div>
-        <div class="tvc-field">
-          <label for="tvcEmail">Email</label>
-          <input type="email" id="tvcEmail" name="email" autocomplete="email" placeholder="jane@brand.com" />
-        </div>
-        <div class="tvc-field">
-          <label for="tvcBrand">Brand / TikTok Shop Name</label>
-          <input type="text" id="tvcBrand" name="organization" placeholder="Your brand name" />
-        </div>
-        <div class="tvc-field">
-          <label>Are you already selling on TikTok Shop?</label>
-          <div class="tvc-yesno" data-tvc-yesno="selling">
-            <button type="button" data-value="yes">Yes</button>
-            <button type="button" data-value="no">No</button>
-          </div>
-        </div>
-        <div class="tvc-field">
-          <label>Are you already sending samples to creators?</label>
-          <div class="tvc-yesno" data-tvc-yesno="samples">
-            <button type="button" data-value="yes">Yes</button>
-            <button type="button" data-value="no">No</button>
-          </div>
-        </div>
-        <p id="tvcModalError" class="tvc-modal__error" hidden></p>
-        <button type="submit" id="tvcModalSubmit" class="tvc-btn tvc-gradient-bg tvc-modal__submit">Continue to Booking →</button>
-      </form>
-    </div>
+  <!-- Lightbox for the Community In Action screenshots -->
+  <div class="tvc-lightbox" id="tvcLightbox">
+    <button type="button" class="tvc-lightbox__close" id="tvcLightboxClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.29 1.41 1.41 6.3-6.29 6.3 6.29 1.41-1.41-6.3-6.29 6.3-6.3z"/></svg>
+    </button>
+    <img id="tvcLightboxImg" src="" alt="TVC creator community dashboard, expanded" />
   </div>
 
 </div>
@@ -851,65 +1070,74 @@
 <script>
 (function () {
   'use strict';
+
+  /* ====== EDIT THESE ======
+     BOOK_URL      — where the "Book Your Call" button goes (your GHL booking page).
+     PLAYBOOK_URL  — where "Get My Free Playbook" goes. Leave empty and that
+                     button scrolls down to the booking CTA instead. (On the Whop
+                     site this button currently does nothing at all.) */
+  var BOOK_URL     = '/book';
+  var PLAYBOOK_URL = '';
+  /* ======================== */
+
   var root = document.getElementById('tvc-root');
   if (!root) return;
 
-  /* ---------- footer year ---------- */
+  /* footer year */
   var yearEl = document.getElementById('tvcFooterCopy');
   if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
 
-  /* ---------- modal open/close ---------- */
-  var overlay = document.getElementById('tvcModalOverlay');
+  /* book link */
+  var bookLink = document.getElementById('tvcBookLink');
+  if (bookLink) bookLink.setAttribute('href', BOOK_URL);
 
-  function openModal() {
-    overlay.classList.add('tvc-open');
-    document.body.style.overflow = 'hidden';
+  /* ---------- scroll-to-book CTAs (nav + hero) ---------- */
+  function scrollToBook() {
+    var target = document.getElementById('book');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
   }
-  function closeModal() {
-    overlay.classList.remove('tvc-open');
-    document.body.style.overflow = '';
-  }
-  root.querySelectorAll('[data-tvc-open-modal]').forEach(function (btn) {
-    btn.addEventListener('click', openModal);
-  });
-  root.querySelectorAll('[data-tvc-close-modal]').forEach(function (btn) {
-    btn.addEventListener('click', closeModal);
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && overlay.classList.contains('tvc-open')) closeModal();
+  root.querySelectorAll('[data-tvc-scroll-book]').forEach(function (btn) {
+    btn.addEventListener('click', scrollToBook);
   });
 
-  /* ---------- yes/no toggles ---------- */
-  var answers = { selling: '', samples: '' };
-  root.querySelectorAll('[data-tvc-yesno]').forEach(function (group) {
-    var key = group.getAttribute('data-tvc-yesno');
-    group.querySelectorAll('button').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        answers[key] = btn.getAttribute('data-value');
-        group.querySelectorAll('button').forEach(function (b) {
-          b.classList.toggle('tvc-selected', b === btn);
-          b.classList.toggle('tvc-gradient-bg', b === btn);
-        });
-      });
+  /* ---------- playbook button ---------- */
+  var playbookBtn = document.getElementById('tvcPlaybookBtn');
+  if (playbookBtn) {
+    playbookBtn.addEventListener('click', function () {
+      if (PLAYBOOK_URL) window.location.href = PLAYBOOK_URL;
+      else scrollToBook();
     });
-  });
+  }
 
-  /* ---------- hero video docking ---------- */
+  /* ---------- hero video: mute toggle + dock on scroll ---------- */
   var video = document.getElementById('tvcHeroVideo');
   var videoBox = document.getElementById('tvcHeroVideoBox');
-  var unmuteBtn = document.getElementById('tvcHeroUnmute');
+  var unmuteBtn = document.getElementById('tvcUnmuteBtn');
+  var muteBtn = document.getElementById('tvcMuteBtn');
   var closeFloatBtn = document.getElementById('tvcHeroCloseFloat');
   var anchor = document.getElementById('tvcHeroVideoAnchor');
   var dismissed = false;
+  var hasUnmutedBefore = false;
 
-  if (unmuteBtn && video) {
+  if (unmuteBtn && muteBtn && video) {
     unmuteBtn.addEventListener('click', function () {
       video.muted = false;
-      video.currentTime = 0;
+      if (!hasUnmutedBefore) {
+        video.currentTime = 0;
+        hasUnmutedBefore = true;
+      }
       video.play().catch(function () {});
       unmuteBtn.hidden = true;
+      muteBtn.hidden = false;
+    });
+
+    muteBtn.addEventListener('click', function () {
+      video.muted = true;
+      muteBtn.hidden = true;
+      unmuteBtn.hidden = false;
     });
   }
+
   if (closeFloatBtn && videoBox) {
     closeFloatBtn.addEventListener('click', function () {
       dismissed = true;
@@ -917,8 +1145,9 @@
       closeFloatBtn.hidden = true;
     });
   }
+
   if (anchor && videoBox && 'IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(function (entries) {
+    new IntersectionObserver(function (entries) {
       var isDocked = !entries[0].isIntersecting;
       if (isDocked && !dismissed) {
         videoBox.classList.add('tvc-docked');
@@ -928,165 +1157,100 @@
         closeFloatBtn.hidden = true;
         if (!isDocked) dismissed = false;
       }
-    }, { rootMargin: '-88px 0px 0px 0px', threshold: 0 });
-    observer.observe(anchor);
+    }, { rootMargin: '-88px 0px 0px 0px', threshold: 0 }).observe(anchor);
   }
 
-  /* =========================================================================
-     GHL FORM BRIDGE
-     This copies the modal's answers into GHL's native form fields, then
-     clicks GHL's own submit button so CAPI / Hyros / GA / automations /
-     conditional redirects all fire exactly the way they would for a normal
-     GHL form submission. See the top-of-file comment for setup steps.
+  /* ---------- playbook book mockup: tilt/scale + ring rotation driven by scroll ---------- */
+  var bookWrap = document.getElementById('tvcBookWrap');
+  var book = document.getElementById('tvcBook');
+  var ring1 = document.getElementById('tvcRing1');
+  var ring2 = document.getElementById('tvcRing2');
+  var ring3 = document.getElementById('tvcRing3');
 
-     If GHL's generated field names differ from the guesses below, adjust the
-     selector arrays here after running the diagnostic snippets in DevTools.
-  ========================================================================= */
-  var GHL_FIELD_SELECTORS = {
-    name:  ['input[name="full_name"]', 'input[name="name"]', 'input[name="first_name"]'],
-    email: ['input[name="email"]', 'input[type="email"]'],
-    brand: ['input[name*="brand" i]', 'input[name*="company" i]', 'input[name*="organization" i]'],
-    // Text/select fallback for the two qualifier questions if GHL's custom
-    // fields are single-line text or a dropdown rather than radios:
-    selling: ['input[name*="selling" i]', 'select[name*="selling" i]'],
-    samples: ['input[name*="sample" i]', 'select[name*="sample" i]'],
-  };
-  var GHL_SUBMIT_SELECTOR = 'button.button-element';
+  if (bookWrap && book) {
+    var ticking = false;
 
-  function nativeSetValue(input, value) {
-    var proto = input.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
-    var setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
-    setter.call(input, value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  }
+    var updateBook = function () {
+      ticking = false;
+      var rect = bookWrap.getBoundingClientRect();
+      var vh = window.innerHeight || 1;
+      var total = rect.height + vh;
+      var traveled = vh - rect.top;
+      var progress = Math.min(1, Math.max(0, traveled / total));
 
-  function findGhlField(selectors) {
-    for (var i = 0; i < selectors.length; i++) {
-      var matches = document.querySelectorAll(selectors[i]);
-      for (var j = 0; j < matches.length; j++) {
-        var el = matches[j];
-        if (el.closest('#tvcModalOverlay')) continue; // never grab our own modal inputs
-        return el;
+      var rotate = 22 - progress * 44;
+      var scale = 1 + Math.sin(progress * Math.PI) * 0.16;
+      book.style.transform = 'rotate(' + rotate + 'deg) scale(' + scale + ')';
+
+      var ringRotate = progress * 70;
+      if (ring1) ring1.style.transform = 'rotate(' + ringRotate + 'deg)';
+      if (ring2) ring2.style.transform = 'rotate(' + (-ringRotate) + 'deg)';
+      if (ring3) ring3.style.transform = 'rotate(' + (ringRotate * 1.6) + 'deg)';
+    };
+
+    var onScroll = function () {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(updateBook);
       }
+    };
+
+    updateBook();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+  }
+
+  /* ---------- brand belts ----------
+     The markup holds one seed set of logos. Duplicate it until a single "half"
+     is wider than any screen, then mirror that half so the -50% loop point
+     lines up exactly and the belt never runs dry mid-scroll. */
+  function buildBelt(el) {
+    if (!el) return;
+    var seed = Array.prototype.slice.call(el.children);
+    if (!seed.length) return;
+
+    var half = document.createDocumentFragment();
+    for (var r = 0; r < 6; r++) {
+      for (var i = 0; i < seed.length; i++) half.appendChild(seed[i].cloneNode(true));
     }
-    return null;
+    el.innerHTML = '';
+    var halfClone = half.cloneNode(true);
+    el.appendChild(half);
+    el.appendChild(halfClone);
+  }
+  buildBelt(document.getElementById('tvcBelt1'));
+  buildBelt(document.getElementById('tvcBelt2'));
+
+  /* ---------- community screenshots lightbox ---------- */
+  var lightbox = document.getElementById('tvcLightbox');
+  var lightboxImg = document.getElementById('tvcLightboxImg');
+  var lightboxClose = document.getElementById('tvcLightboxClose');
+
+  function openLightbox(src) {
+    if (!lightbox || !lightboxImg) return;
+    lightboxImg.src = src;
+    lightbox.classList.add('tvc-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove('tvc-open');
+    document.body.style.overflow = '';
   }
 
-  function setGhlRadioOrSelect(selectors, value) {
-    for (var i = 0; i < selectors.length; i++) {
-      var matches = document.querySelectorAll(selectors[i]);
-      for (var j = 0; j < matches.length; j++) {
-        var el = matches[j];
-        if (el.closest('#tvcModalOverlay')) continue;
-        if (el.tagName === 'SELECT') {
-          el.value = value;
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-          return true;
-        }
-        nativeSetValue(el, value === 'yes' ? 'Yes' : 'No');
-        return true;
-      }
-    }
-    // fall back: radios/checkboxes labelled Yes/No elsewhere on the page
-    var radios = document.querySelectorAll('input[type="radio"]');
-    for (var k = 0; k < radios.length; k++) {
-      var r = radios[k];
-      if (r.closest('#tvcModalOverlay')) continue;
-      var label = (r.closest('label') || r.parentElement);
-      var text = (label && label.textContent || r.value || '').trim().toLowerCase();
-      var wantYes = value === 'yes';
-      if ((wantYes && text.indexOf('yes') !== -1) || (!wantYes && text.indexOf('no') !== -1)) {
-        r.click();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function bridgeToGhlAndSubmit(data) {
-    var nameField = findGhlField(GHL_FIELD_SELECTORS.name);
-    if (nameField) nativeSetValue(nameField, data.name);
-
-    var emailField = findGhlField(GHL_FIELD_SELECTORS.email);
-    if (emailField) nativeSetValue(emailField, data.email);
-
-    var brandField = findGhlField(GHL_FIELD_SELECTORS.brand);
-    if (brandField) nativeSetValue(brandField, data.brand);
-
-    setGhlRadioOrSelect(GHL_FIELD_SELECTORS.selling, data.selling);
-    setGhlRadioOrSelect(GHL_FIELD_SELECTORS.samples, data.samples);
-
-    setTimeout(function () {
-      var submitBtn = document.querySelector(GHL_SUBMIT_SELECTOR);
-      if (submitBtn) {
-        submitBtn.click();
-      } else {
-        console.warn('[TVC bridge] Could not find GHL submit button (' + GHL_SUBMIT_SELECTOR + '). Add a native GHL form to this page — see setup notes at the top of this file.');
-      }
-    }, 150);
-  }
-
-  /* ---------- modal form submit ---------- */
-  var form = document.getElementById('tvcQualifyForm');
-  var errorEl = document.getElementById('tvcModalError');
-  var submitBtn = document.getElementById('tvcModalSubmit');
-  var isSubmitting = false;
-
-  if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      if (isSubmitting) return;
-
-      var name = document.getElementById('tvcName').value.trim();
-      var email = document.getElementById('tvcEmail').value.trim();
-      var brand = document.getElementById('tvcBrand').value.trim();
-
-      if (!name || !email || !brand || !answers.selling || !answers.samples) {
-        errorEl.textContent = 'Please fill out every question so we can route you correctly.';
-        errorEl.hidden = false;
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errorEl.textContent = 'Enter a valid email address.';
-        errorEl.hidden = false;
-        return;
-      }
-      errorEl.hidden = true;
-
-      isSubmitting = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Checking...';
-
-      try {
-        sessionStorage.setItem('tvc_lead_name', name);
-        sessionStorage.setItem('tvc_lead_email', email);
-      } catch (err) { /* sessionStorage unavailable — non-fatal */ }
-
-      bridgeToGhlAndSubmit({
-        name: name,
-        email: email,
-        brand: brand,
-        selling: answers.selling,
-        samples: answers.samples,
-      });
-
-      // GHL's own form action (configured in the GHL form's settings) handles
-      // the redirect after a successful submit. Reset this modal after a
-      // couple seconds in case the redirect is slow or blocked.
-      setTimeout(function () {
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Continue to Booking →';
-        form.reset();
-        answers.selling = '';
-        answers.samples = '';
-        root.querySelectorAll('[data-tvc-yesno] button').forEach(function (b) {
-          b.classList.remove('tvc-selected', 'tvc-gradient-bg');
-        });
-        closeModal();
-      }, 2000);
+  root.querySelectorAll('[data-tvc-shot]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      openLightbox(btn.getAttribute('data-tvc-shot'));
+    });
+  });
+  if (lightbox) {
+    lightbox.addEventListener('click', function (e) {
+      if (e.target !== lightboxImg) closeLightbox();
     });
   }
+  if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
 })();
 </script>
