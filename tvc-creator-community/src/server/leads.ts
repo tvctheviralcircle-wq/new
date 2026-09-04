@@ -54,3 +54,32 @@ export const submitQualifyLead = createServerFn({ method: 'POST' })
       return { ok: false as const, error: 'lead_creation_failed' }
     }
   })
+
+export type PlaybookLeadInput = {
+  email: string
+  referrer?: string
+}
+
+const PLAYBOOK_TAG = '@tvc-playbook-optin'
+
+export const submitPlaybookLead = createServerFn({ method: 'POST' })
+  .validator((input: PlaybookLeadInput) => input)
+  .handler(async ({ data }) => {
+    try {
+      const client = await getWhopClient()
+      const lead = await client.leads.create({
+        company_id: COMPANY_ID,
+        product_id: FUNNEL_PRODUCT_ID,
+        referrer: data.referrer ?? null,
+        metadata: {
+          tag: PLAYBOOK_TAG,
+          email: data.email,
+          source: 'tvc-playbook-optin',
+        },
+      })
+      return { ok: true as const, leadId: lead.id }
+    } catch (error) {
+      console.error('Failed to create playbook lead', error)
+      return { ok: false as const, error: 'lead_creation_failed' }
+    }
+  })

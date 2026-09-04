@@ -69,7 +69,7 @@ export function Shift() {
           The Shift
         </p>
         <h2 className="font-display text-2xl uppercase leading-tight text-white sm:text-3xl md:text-4xl">
-          You've been told winning means recruiting more creators. It doesn't.
+          Does winning on TikTok Shop mean recruiting more creators? It doesn't.
         </h2>
 
         <div className="mt-5 space-y-4 text-base leading-relaxed text-white/70 sm:mt-8 sm:space-y-5 sm:text-lg">

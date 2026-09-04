@@ -1,8 +1,6 @@
-import { useQualifyModal } from '../context/QualifyModalContext'
+import { Link } from '@tanstack/react-router'
 
 export function FinalCTA() {
-  const { open } = useQualifyModal()
-
   return (
     <section
       id="book"
@@ -28,13 +26,12 @@ export function FinalCTA() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={open}
+        <Link
+          to="/book"
           className="gradient-bg mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-xl shadow-fuchsia-900/40 transition-transform hover:scale-105 active:scale-105 sm:mt-10 sm:w-auto sm:px-10 sm:py-5 sm:text-lg"
         >
           Book Your Call →
-        </button>
+        </Link>
 
         <p className="mx-auto mt-5 max-w-xl text-xs text-white/50 sm:mt-6 sm:text-sm">
           We'll look at your shop, your samples, and your current creators, and map out exactly

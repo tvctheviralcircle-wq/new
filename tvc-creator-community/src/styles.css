@@ -70,6 +70,27 @@ body {
   animation: marquee 22s linear infinite;
 }
 
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse 26s linear infinite;
+}
+
+.animate-marquee-brands {
+  animation: marquee 150s linear infinite;
+}
+
+.animate-marquee-brands-reverse {
+  animation: marquee-reverse 170s linear infinite;
+}
+
 @keyframes live-pulse {
   0%,
   100% {

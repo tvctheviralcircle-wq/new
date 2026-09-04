@@ -27,6 +27,11 @@ function ClosingWindowChart() {
             <stop offset="0%" stopColor="#c084fc" />
             <stop offset="100%" stopColor="#ec1fa0" />
           </linearGradient>
+          <radialGradient id="ballGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+            <stop offset="45%" stopColor="#ec1fa0" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#ec1fa0" stopOpacity="0" />
+          </radialGradient>
         </defs>
 
         {/* baseline */}
@@ -38,16 +43,28 @@ function ClosingWindowChart() {
           fill="url(#windowFill)"
         />
         <path
+          id="windowPath"
           d="M0,20 C100,35 150,55 200,80 C280,115 340,135 400,145"
           fill="none"
           stroke="url(#windowLine)"
           strokeWidth="3"
         />
 
-        {/* markers */}
+        {/* endpoints */}
         <circle cx="0" cy="20" r="5" fill="#c084fc" />
-        <circle cx="200" cy="80" r="5" fill="#ec1fa0" />
         <circle cx="400" cy="145" r="5" fill="#f472b6" />
+
+        {/* traveling marker: slides down the line from open to closed, on a loop */}
+        <circle r="16" fill="url(#ballGlow)">
+          <animateMotion dur="3.5s" repeatCount="indefinite">
+            <mpath href="#windowPath" />
+          </animateMotion>
+        </circle>
+        <circle r="5" fill="#ec1fa0">
+          <animateMotion dur="3.5s" repeatCount="indefinite">
+            <mpath href="#windowPath" />
+          </animateMotion>
+        </circle>
       </svg>
 
       <div className="mt-2 flex items-center justify-between text-[8px] uppercase text-white/40 sm:text-[11px]">
