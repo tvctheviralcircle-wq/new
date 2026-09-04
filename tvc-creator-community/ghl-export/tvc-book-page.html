@@ -8,7 +8,6 @@
     --tvc-purple: #7c2af8;
     --tvc-pink: #ec1fa0;
     --tvc-gradient: linear-gradient(135deg, #5b21b6 0%, #a021c9 45%, #ec1fa0 100%);
-    --tvc-gradient-text: linear-gradient(90deg, #c084fc 0%, #f472b6 100%);
     background: var(--tvc-bg);
     color: #fff;
     font-family: 'Inter', system-ui, sans-serif;
@@ -42,7 +41,7 @@
   /* NAV */
   .tvcb-nav { position: sticky; top: 0; z-index: 50; width: 100%; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.7); backdrop-filter: blur(10px); }
   .tvcb-nav__inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 12px; }
-  .tvcb-nav__logo { width: 34px; height: 34px; border-radius: 999px; object-fit: cover; }
+  .tvcb-nav__logo { width: 32px; height: 32px; border-radius: 999px; object-fit: cover; }
   .tvcb-nav__step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: rgba(255,255,255,.4); text-align: right; }
   @media (min-width: 640px) { .tvcb-nav__inner { padding: 16px 24px; } .tvcb-nav__logo { width: 36px; height: 36px; } .tvcb-nav__step { font-size: 12px; } }
 
@@ -55,18 +54,24 @@
   }
   .tvcb-hero__inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
   .tvcb-eyebrow { margin: 0 0 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #e879f9; }
-  .tvcb-hero h1 { font-size: 28px; text-transform: uppercase; line-height: 1.2; color: #fff; margin: 0; }
-  .tvcb-hero__sub { max-width: 560px; margin: 16px auto 0; font-size: 15px; color: rgba(255,255,255,.7); }
+  .tvcb-hero h1 { font-size: 30px; text-transform: uppercase; line-height: 1.2; color: #fff; margin: 0; }
+  .tvcb-hero__sub { max-width: 560px; margin: 16px auto 0; font-size: 14px; color: rgba(255,255,255,.7); }
   @media (min-width: 640px) {
     .tvcb-hero { padding: 80px 24px; }
-    .tvcb-hero h1 { font-size: 40px; }
+    .tvcb-hero h1 { font-size: 36px; }
     .tvcb-hero__sub { font-size: 18px; }
   }
   @media (min-width: 768px) { .tvcb-hero h1 { font-size: 48px; } }
 
-  /* CALENDLY CARD */
-  .tvcb-cal-card { position: relative; margin: 40px auto 0; overflow: hidden; border-radius: 16px; background: var(--tvc-card); }
-  .tvcb-cal-widget { min-width: 280px; min-height: 680px; width: 100%; }
+  /* BOOKING SLOT */
+  .tvcb-cal-card {
+    position: relative; margin: 40px auto 0; overflow: hidden;
+    border-radius: 16px; background: var(--tvc-card);
+    min-height: 420px;
+  }
+  @media (min-width: 640px) { .tvcb-cal-card { min-height: 560px; } }
+  .tvcb-cal-card iframe { width: 100%; border: none; display: block; min-height: inherit; }
+
   .tvcb-cal-loader {
     position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center;
@@ -83,9 +88,6 @@
     border: 2px solid rgba(255,255,255,.15); border-top-color: var(--tvc-pink);
     animation: tvcb-spin .8s linear infinite;
   }
-
-  .tvcb-fallback { max-width: 560px; margin: 32px auto 0; font-size: 12px; color: rgba(255,255,255,.4); }
-  .tvcb-fallback a { color: #e879f9; text-decoration: underline; text-underline-offset: 2px; }
 
   /* FOOTER */
   .tvcb-footer { border-top: 1px solid rgba(255,255,255,.1); background: #000; padding: 32px 16px; text-align: center; }
@@ -116,21 +118,15 @@
       <h1 class="tvcb-display">Pick A Time That Works For You.</h1>
       <p class="tvcb-hero__sub">30 minutes. We'll look at your shop, your samples, and your current creators, and map out exactly what this looks like for your brand.</p>
 
-      <div class="tvcb-gradient-border tvcb-cal-card">
-        <div class="tvcb-cal-loader" id="tvcbCalLoader">
+      <div class="tvcb-gradient-border tvcb-cal-card" id="tvcbCalCard">
+        <div class="tvcb-cal-loader" id="tvcbCalLoader" hidden>
           <div class="tvcb-cal-loader__icon tvcb-gradient-bg">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 16H5V8h14Z"/></svg>
           </div>
           <p class="tvcb-cal-loader__text">Loading Calendar...</p>
           <div class="tvcb-cal-loader__spinner"></div>
         </div>
-        <div class="tvcb-cal-widget" id="tvcbCalWidget"></div>
       </div>
-
-      <p class="tvcb-fallback">
-        Already booked but the page didn't move?
-        <a href="#" id="tvcbContinueLink">Continue &rarr;</a>
-      </p>
     </div>
   </section>
 
@@ -146,9 +142,17 @@
 (function () {
   'use strict';
 
-  /* ====== EDIT THESE TWO VALUES ====== */
-  var CALENDLY_URL  = 'https://calendly.com/tvc-theviralcircle/tvc-brand-launch-plan-clone';
-  var THANKYOU_URL  = '/thank-you';   // the GHL page to send people to after they book
+  /* ============ EDIT THIS ============
+     Your GHL calendar's booking-widget URL.
+
+     Find it in GHL: Calendars > (your calendar) > the three-dot menu >
+     Embed / Share. Copy the URL out of the iframe src, it looks like:
+       https://api.leadconnectorhq.com/widget/booking/AbC123xyz
+
+     Leave it as an empty string and the slot just stays as an empty framed
+     box (matching the Whop page as it is today), so you can drop a GHL
+     Calendar element in on top of it instead. */
+  var GHL_CALENDAR_URL = '';
   /* =================================== */
 
   var root = document.getElementById('tvcb-root');
@@ -158,14 +162,9 @@
   var yearEl = document.getElementById('tvcbFooterCopy');
   if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
 
-  /* continue link target */
-  var continueLink = document.getElementById('tvcbContinueLink');
-  if (continueLink) continueLink.setAttribute('href', THANKYOU_URL);
-
   /* ---------- who is this person? ----------
-     Prefer URL params (set these on the GHL form's redirect, e.g.
-     /book?name={{contact.name}}&email={{contact.email}}), then fall back to
-     sessionStorage written by the landing page's qualify modal. */
+     URL params first (set your landing page's CTA or GHL redirect to pass
+     ?name={{contact.name}}&email={{contact.email}}), then sessionStorage. */
   function readParam(keys) {
     try {
       var qs = new URLSearchParams(window.location.search);
@@ -183,7 +182,7 @@
   var leadName  = readParam(['name', 'first_name', 'full_name', 'firstName']) || readStore('tvc_lead_name');
   var leadEmail = readParam(['email', 'contact_email'])                       || readStore('tvc_lead_email');
 
-  /* keep them around for the thank-you page */
+  /* carry them to the thank-you page */
   try {
     if (leadName)  sessionStorage.setItem('tvc_lead_name', leadName);
     if (leadEmail) sessionStorage.setItem('tvc_lead_email', leadEmail);
@@ -195,73 +194,49 @@
     eyebrow.textContent = "You're In, " + leadName.split(' ')[0] + '.';
   }
 
-  /* ---------- build the Calendly URL ---------- */
-  var params = [
-    'hide_gdpr_banner=1',
-    'background_color=0d0410',
-    'text_color=ffffff',
-    'primary_color=ec1fa0'
-  ];
-  var calUrl = CALENDLY_URL + (CALENDLY_URL.indexOf('?') === -1 ? '?' : '&') + params.join('&');
-
-  /* ---------- load Calendly assets ----------
-     Injected via JS rather than <link>/<script> tags, because GHL strips those
-     from pasted markup. Injecting them at runtime works fine. */
-  if (!document.querySelector('link[data-tvcb-calendly-css]')) {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://assets.calendly.com/assets/external/widget.css';
-    link.setAttribute('data-tvcb-calendly-css', 'true');
-    document.head.appendChild(link);
-  }
-
+  /* ---------- GHL calendar ---------- */
+  var card = document.getElementById('tvcbCalCard');
   var loader = document.getElementById('tvcbCalLoader');
-  function hideLoader() { if (loader) loader.hidden = true; }
 
-  function initWidget() {
-    var parent = document.getElementById('tvcbCalWidget');
-    if (!parent || !window.Calendly || typeof window.Calendly.initInlineWidget !== 'function') return;
-    window.Calendly.initInlineWidget({
-      url: calUrl,
-      parentElement: parent,
-      prefill: { name: leadName || '', email: leadEmail || '' }
-    });
-    /* Calendly renders in an iframe; give it a beat, then drop the loader.
-       The message listener below also clears it as soon as Calendly speaks. */
-    setTimeout(hideLoader, 1200);
+  if (!GHL_CALENDAR_URL || !card) return;
+
+  if (loader) loader.hidden = false;
+
+  /* prefill what we know so the booker doesn't retype it */
+  var url = GHL_CALENDAR_URL;
+  var params = [];
+  if (leadName) {
+    var parts = leadName.split(' ');
+    params.push('first_name=' + encodeURIComponent(parts[0]));
+    if (parts.length > 1) params.push('last_name=' + encodeURIComponent(parts.slice(1).join(' ')));
   }
+  if (leadEmail) params.push('email=' + encodeURIComponent(leadEmail));
+  if (params.length) url += (url.indexOf('?') === -1 ? '?' : '&') + params.join('&');
 
-  var existing = document.querySelector('script[data-tvcb-calendly-js]');
-  if (existing && window.Calendly) {
-    initWidget();
-  } else if (existing) {
-    existing.addEventListener('load', initWidget);
-  } else {
+  var iframe = document.createElement('iframe');
+  iframe.src = url;
+  iframe.scrolling = 'no';
+  iframe.setAttribute('title', 'Book your call');
+  /* GHL's form_embed.js finds the frame by an id ending in _iframe and
+     auto-sizes it to the booking widget's real height. */
+  var slug = GHL_CALENDAR_URL.split('/').pop().split('?')[0];
+  iframe.id = slug + '_iframe';
+  iframe.style.width = '100%';
+  iframe.style.border = 'none';
+  iframe.style.minHeight = '560px';
+  iframe.onload = function () { if (loader) loader.hidden = true; };
+  card.appendChild(iframe);
+
+  /* auto-resize script (loaded at runtime: GHL strips literal script tags) */
+  if (!document.querySelector('script[data-tvcb-ghl-embed]')) {
     var s = document.createElement('script');
-    s.src = 'https://assets.calendly.com/assets/external/widget.js';
+    s.src = 'https://link.msgsndr.com/js/form_embed.js';
     s.async = true;
-    s.setAttribute('data-tvcb-calendly-js', 'true');
-    s.onload = initWidget;
+    s.setAttribute('data-tvcb-ghl-embed', 'true');
     document.body.appendChild(s);
   }
 
-  /* safety net: never leave the loader up forever */
-  setTimeout(hideLoader, 8000);
-
-  /* ---------- advance to thank-you when a call is actually booked ---------- */
-  window.addEventListener('message', function (e) {
-    if (!e || !e.data || typeof e.data.event !== 'string') return;
-    if (e.data.event.indexOf('calendly.') !== 0) return;
-
-    hideLoader();
-
-    if (e.data.event === 'calendly.event_scheduled') {
-      var url = THANKYOU_URL;
-      if (leadEmail) {
-        url += (url.indexOf('?') === -1 ? '?' : '&') + 'email=' + encodeURIComponent(leadEmail);
-      }
-      window.location.href = url;
-    }
-  });
+  /* never leave the loader up forever */
+  setTimeout(function () { if (loader) loader.hidden = true; }, 8000);
 })();
 </script>
