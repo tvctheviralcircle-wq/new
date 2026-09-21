@@ -1398,7 +1398,11 @@
 
   /* punctuation-insensitive compare: en-dashes, commas and curly quotes in GHL
      option text never have to match ours exactly */
-  function norm(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+  function norm(s) {
+    /* strip thousands separators FIRST so "1,000" and "1000" are the same token,
+       otherwise "500-1,000" tokenises as 500/1/000 and never matches "500-1000" */
+    return (s || '').toLowerCase().replace(/(\d),(\d)/g, '$1$2').replace(/[^a-z0-9]+/g, ' ').trim();
+  }
 
   function score(candidate, want) {
     var a = norm(candidate), b = norm(want);
@@ -1530,6 +1534,31 @@
 
     setNative(el, v);
     return (el.value || '').trim() === v.trim();
+  }
+
+  /* explains precisely why one field could not be filled */
+  function describeFailure(key, el, want) {
+    if (!el) return { field: key, want: want, problem: 'NO MATCHING ELEMENT FOUND on the page' };
+    var d = {
+      field: key, want: want,
+      el: el.tagName.toLowerCase() + (el.type ? '[' + el.type + ']' : ''),
+      name: el.name || '(none)', id: el.id || '(none)',
+      label: labelOf(el).replace(/\s+/g, ' ').trim().slice(0, 60)
+    };
+    if (el.tagName === 'SELECT') {
+      d.options = Array.prototype.map.call(el.options, function (o) { return o.text; });
+      d.problem = 'found a <select>, but no option matched closely enough';
+    } else if (el.type === 'radio' || el.type === 'checkbox') {
+      d.options = Array.prototype.slice.call(
+        document.querySelectorAll('input[type="' + el.type + '"][name="' + el.name + '"]')
+      ).filter(function (r) { return !mine(r); })
+       .map(function (r) { return optionText(r).replace(/\s+/g, ' ').trim().slice(0, 40); });
+      d.problem = 'found a ' + el.type + ' group, but no option matched closely enough';
+    } else {
+      d.problem = 'wrote the value but it did not stick (field now reads "' + (el.value || '') +
+                  '") - this usually means it is a React-controlled custom dropdown, not a plain input';
+    }
+    return d;
   }
 
   /* console helper: run tvcDiagnose() on the live page */
@@ -1716,12 +1745,26 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
-    var missingRequired = [], missingOptional = [];
+    var missingRequired = [], missingOptional = [], failDetail = [];
     Object.keys(MAP).forEach(function (k) {
       var v = data[k];
       if (!v) return;
-      if (!write(resolve(MAP[k]), v)) (MAP[k].required ? missingRequired : missingOptional).push(k);
+      var el = resolve(MAP[k]);
+      if (write(el, v)) return;
+      (MAP[k].required ? missingRequired : missingOptional).push(k);
+      failDetail.push(describeFailure(k, el, v));
     });
+    if (failDetail.length) {
+      console.warn('[TVC] --- why these fields did not fill ---');
+      failDetail.forEach(function (d) {
+        console.warn(d.field + ': ' + d.problem
+          + '\n   element: ' + (d.el || 'NONE')
+          + '\n   name/id: ' + (d.name || '-') + ' / ' + (d.id || '-')
+          + '\n   label:   ' + (d.label || '-')
+          + (d.options ? '\n   options GHL offers: ' + JSON.stringify(d.options) : '')
+          + '\n   we tried to set: ' + JSON.stringify(d.want));
+      });
+    }
 
     /* split the name if GHL uses separate first/last fields */
     var lastEl = resolve({ names: ['last_name'], labels: ['last name'] });
