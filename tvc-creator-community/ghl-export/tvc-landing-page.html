@@ -594,6 +594,9 @@
   .tvc-nav-row .tvc-btn:disabled { opacity: .6; cursor: default; transform: none; }
   .tvc-fineprint { margin: 12px 0 0; text-align: center; font-size: 11px; color: rgba(255,255,255,.35); }
 
+  .tvc-embed { margin-top: 18px; border-radius: 12px; overflow: hidden; }
+  .tvc-embed iframe { width: 100%; border: none; display: block; min-height: 620px; }
+
   #tvc-root [hidden] { display: none !important; }
 </style>
 
@@ -1170,10 +1173,13 @@
       <h2 class="tvc-modal__title">See If You Qualify</h2>
       <p class="tvc-modal__sub">A few quick questions so we can come to the call already knowing your shop. Takes about 90 seconds.</p>
 
-      <div class="tvc-prog">
+      <div class="tvc-prog" id="tvcProgWrap">
         <div class="tvc-prog__bar"><div class="tvc-prog__fill" id="tvcProg"></div></div>
         <span class="tvc-prog__txt" id="tvcProgTxt">Step 1 of 3</span>
       </div>
+
+      <!-- used only when GHL_FORM_URL is set (iframe-embedded GHL form) -->
+      <div class="tvc-embed" id="tvcEmbed" hidden></div>
 
       <form id="tvcForm" autocomplete="on" novalidate>
 
@@ -1285,9 +1291,23 @@
 
   /* ====== EDIT THESE ======
      BOOK_URL      — where the "Book Your Call" button goes (your GHL booking page).
-     PLAYBOOK_URL  — where "Email Me Free Playbook" goes. Empty = opens this form. */
+     PLAYBOOK_URL  — where "Email Me Free Playbook" goes. Empty = opens this form.
+
+     GHL_FORM_URL  — LEAVE EMPTY to use the custom-styled form below (the bridge
+                     copies answers into your hidden GHL form on this page).
+                     If your GHL form is embedded as an IFRAME, the bridge
+                     physically cannot reach its fields (cross-origin), so paste
+                     your form's widget URL here instead and the modal will show
+                     GHL's own form inside the branded popup. Submissions are
+                     then 100% native — nothing can be dropped.
+                     e.g. 'https://link.omnii.co/widget/form/sdBDlvyd0I8SBPhsuq9A'
+
+     Quick check, in the console on the live page:
+       document.querySelectorAll('iframe[src*="form"]').length   // 1 = use GHL_FORM_URL
+       document.querySelectorAll('input:not([type=hidden])').length // 12ish = bridge works */
   var BOOK_URL     = 'https://theviralcircle.io/booking-page';
   var PLAYBOOK_URL = '';
+  var GHL_FORM_URL = '';
 
   /* How each question maps onto your hidden GHL form.
      `names`  — matched against the GHL input's name/id (exact first, then contains).
@@ -1365,6 +1385,35 @@
       else openModal();
     });
   }
+
+  /* ---------- MODE B: GHL's own form inside the branded popup ----------
+     Used when the GHL form is iframe-embedded, where no script on this page
+     can reach its fields. Submission, validation and redirect are all GHL's. */
+  if (GHL_FORM_URL) {
+    form.hidden = true;
+    document.getElementById('tvcProgWrap').hidden = true;
+    var embed = document.getElementById('tvcEmbed');
+    embed.hidden = false;
+
+    var f = document.createElement('iframe');
+    f.src = GHL_FORM_URL;
+    f.scrolling = 'no';
+    f.setAttribute('title', 'Qualification form');
+    f.id = GHL_FORM_URL.split('/').pop().split('?')[0] + '_iframe';
+    embed.appendChild(f);
+
+    if (!document.querySelector('script[data-tvc-ghl-embed]')) {
+      var es = document.createElement('script');
+      es.src = 'https://link.msgsndr.com/js/form_embed.js';
+      es.async = true;
+      es.setAttribute('data-tvc-ghl-embed', 'true');
+      document.body.appendChild(es);
+    }
+  }
+
+  /* everything from here to the hero video is the custom form + bridge,
+     which is skipped entirely when GHL's own form is embedded above */
+  if (!GHL_FORM_URL) {
 
   /* ---------- choice pills ---------- */
   root.querySelectorAll('[data-tvc-opt]').forEach(function (group) {
@@ -1666,6 +1715,8 @@
       window.location.href = u;
     }, 4000);
   });
+
+  } /* end custom form + bridge */
 
   /* ---------- hero video: mute toggle + dock on scroll ---------- */
   var video = document.getElementById('tvcHeroVideo');
