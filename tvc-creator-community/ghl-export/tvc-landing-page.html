@@ -1293,21 +1293,25 @@
      BOOK_URL      — where the "Book Your Call" button goes (your GHL booking page).
      PLAYBOOK_URL  — where "Email Me Free Playbook" goes. Empty = opens this form.
 
-     GHL_FORM_URL  — LEAVE EMPTY to use the custom-styled form below (the bridge
-                     copies answers into your hidden GHL form on this page).
-                     If your GHL form is embedded as an IFRAME, the bridge
-                     physically cannot reach its fields (cross-origin), so paste
-                     your form's widget URL here instead and the modal will show
-                     GHL's own form inside the branded popup. Submissions are
-                     then 100% native — nothing can be dropped.
-                     e.g. 'https://link.omnii.co/widget/form/sdBDlvyd0I8SBPhsuq9A'
+     GHL_FORM_URL  — your GHL form's widget URL (Forms > your form > Share/Embed,
+                     the URL inside the iframe src).
 
-     Quick check, in the console on the live page:
-       document.querySelectorAll('iframe[src*="form"]').length   // 1 = use GHL_FORM_URL
-       document.querySelectorAll('input:not([type=hidden])').length // 12ish = bridge works */
+     FORM_MODE     — 'auto'   (recommended) decide at runtime:
+                              use the custom form + bridge if this page's script
+                              can actually reach GHL's fields, otherwise show
+                              GHL's own form inside the branded popup.
+                     'bridge' force the custom form + bridge.
+                     'embed'  force GHL's own form in the popup.
+
+                     Why auto matters: when GHL places a form with its Form
+                     element it embeds it as an iframe from another domain
+                     (link.omnii.co). Browser security means no script here can
+                     read or write fields inside it, so the bridge cannot work
+                     in that setup — auto detects that and switches by itself. */
   var BOOK_URL     = 'https://theviralcircle.io/booking-page';
   var PLAYBOOK_URL = '';
-  var GHL_FORM_URL = '';
+  var GHL_FORM_URL = 'https://link.omnii.co/widget/form/sdBDlvyd0I8SBPhsuq9A';
+  var FORM_MODE    = 'auto';
 
   /* How each question maps onto your hidden GHL form.
      `names`  — matched against the GHL input's name/id (exact first, then contains).
@@ -1358,6 +1362,7 @@
   var busy      = false;
 
   function openModal() {
+    ensureMode();
     ov.classList.add('tvc-open');
     document.body.style.overflow = 'hidden';
   }
@@ -1386,104 +1391,8 @@
     });
   }
 
-  /* ---------- MODE B: GHL's own form inside the branded popup ----------
-     Used when the GHL form is iframe-embedded, where no script on this page
-     can reach its fields. Submission, validation and redirect are all GHL's. */
-  if (GHL_FORM_URL) {
-    form.hidden = true;
-    document.getElementById('tvcProgWrap').hidden = true;
-    var embed = document.getElementById('tvcEmbed');
-    embed.hidden = false;
-
-    var f = document.createElement('iframe');
-    f.src = GHL_FORM_URL;
-    f.scrolling = 'no';
-    f.setAttribute('title', 'Qualification form');
-    f.id = GHL_FORM_URL.split('/').pop().split('?')[0] + '_iframe';
-    embed.appendChild(f);
-
-    if (!document.querySelector('script[data-tvc-ghl-embed]')) {
-      var es = document.createElement('script');
-      es.src = 'https://link.msgsndr.com/js/form_embed.js';
-      es.async = true;
-      es.setAttribute('data-tvc-ghl-embed', 'true');
-      document.body.appendChild(es);
-    }
-  }
-
-  /* everything from here to the hero video is the custom form + bridge,
-     which is skipped entirely when GHL's own form is embedded above */
-  if (!GHL_FORM_URL) {
-
-  /* ---------- choice pills ---------- */
-  root.querySelectorAll('[data-tvc-opt]').forEach(function (group) {
-    var key = group.getAttribute('data-tvc-opt');
-    group.querySelectorAll('button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        picks[key] = b.getAttribute('data-v');
-        group.classList.remove('tvc-bad');
-        group.querySelectorAll('button').forEach(function (o) { o.classList.toggle('tvc-on', o === b); });
-      });
-    });
-  });
-
-  /* ---------- phone: format on blur, strip iOS country code ---------- */
-  var phoneEl = document.getElementById('tvcPhone');
-  phoneEl.addEventListener('blur', function () {
-    var d = phoneEl.value.replace(/\D/g, '');
-    if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
-    if (d.length === 10) phoneEl.value = '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
-  });
-
-  /* ---------- per-step validation ---------- */
-  function val(id) { return (document.getElementById(id).value || '').trim(); }
-  function bad(id) { document.getElementById(id).classList.add('tvc-bad'); }
-  function clearBad() {
-    root.querySelectorAll('.tvc-bad').forEach(function (el) { el.classList.remove('tvc-bad'); });
-    errEl.hidden = true;
-  }
-  function fail(msg) { errEl.textContent = msg; errEl.hidden = false; return false; }
-
-  function checkStep(n) {
-    clearBad();
-    if (n === 1) {
-      if (!val('tvcFullName')) { bad('tvcFullName'); return fail('Please enter your name.'); }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('tvcEmail'))) { bad('tvcEmail'); return fail('Please enter a valid email address.'); }
-      if (val('tvcPhone').replace(/\D/g, '').length < 7) { bad('tvcPhone'); return fail('Please enter a valid phone number.'); }
-    }
-    if (n === 2) {
-      if (!val('tvcBrand')) { bad('tvcBrand'); return fail('Please enter your brand name.'); }
-      if (!val('tvcSite'))  { bad('tvcSite');  return fail('Please add your website or TikTok Shop link.'); }
-      if (!picks.samples) { root.querySelector('[data-tvc-opt="samples"]').classList.add('tvc-bad'); return fail('Please pick how many samples you send per month.'); }
-      if (!picks.crm)     { root.querySelector('[data-tvc-opt="crm"]').classList.add('tvc-bad');     return fail('Please pick which affiliate CRM you use.'); }
-    }
-    if (n === 3) {
-      if (!picks.community) { root.querySelector('[data-tvc-opt="community"]').classList.add('tvc-bad'); return fail('Please tell us if you already have a creator community.'); }
-      if (!val('tvcBlocker')) { bad('tvcBlocker'); return fail('Please tell us what is getting in the way.'); }
-    }
-    return true;
-  }
-
-  function show(n) {
-    step = n;
-    steps.forEach(function (s) { s.classList.toggle('tvc-active', +s.getAttribute('data-step') === n); });
-    progFill.style.width = (n / TOTAL * 100) + '%';
-    progTxt.textContent = 'Step ' + n + ' of ' + TOTAL;
-    backBtn.hidden   = n === 1;
-    nextBtn.hidden   = n === TOTAL;
-    submitBtn.hidden = n !== TOTAL;
-    clearBad();
-    ov.scrollTop = 0;
-  }
-
-  nextBtn.addEventListener('click', function () { if (checkStep(step)) show(step + 1); });
-  backBtn.addEventListener('click', function () { show(step - 1); });
-
   /* =====================================================================
-     GHL BRIDGE
-     Copies answers into the hidden native GHL form, verifies every value
-     actually landed, then clicks GHL's own submit button so workflows,
-     automations, CAPI and the redirect all fire natively.
+     SHARED HELPERS (used by both the bridge and the mode detector)
   ===================================================================== */
   function mine(el) { return !!el.closest('#tvcOv'); }
 
@@ -1640,10 +1549,144 @@
     });
     console.log('Mapping result:', res);
     console.log('GHL submit button found:', !!document.querySelector(GHL_SUBMIT));
+    console.log('Mode in use:', mode || '(not decided yet - open the form once)');
     return res;
   };
 
-  form.addEventListener('submit', function (e) {
+  /* =====================================================================
+     MODE DECISION
+     Decided the first time the modal opens, so the page (and any GHL form
+     on it) has finished rendering. If the bridge cannot actually reach
+     GHL's fields - which is always the case when GHL embeds the form as a
+     cross-origin iframe - we fall back to showing GHL's own form inside
+     the branded popup, where submission is entirely native.
+  ===================================================================== */
+  var mode = null;
+
+  function bridgeReachable() {
+    return !!(resolve(MAP.email) && resolve(MAP.phone) && document.querySelector(GHL_SUBMIT));
+  }
+
+  function setupEmbed() {
+    form.hidden = true;
+    document.getElementById('tvcProgWrap').hidden = true;
+    var embed = document.getElementById('tvcEmbed');
+    embed.hidden = false;
+    if (embed.children.length) return;
+
+    var f = document.createElement('iframe');
+    f.src = GHL_FORM_URL;
+    f.scrolling = 'no';
+    f.setAttribute('title', 'Qualification form');
+    f.id = GHL_FORM_URL.split('/').pop().split('?')[0] + '_iframe';
+    embed.appendChild(f);
+
+    if (!document.querySelector('script[data-tvc-ghl-embed]')) {
+      var es = document.createElement('script');
+      es.src = 'https://link.msgsndr.com/js/form_embed.js';
+      es.async = true;
+      es.setAttribute('data-tvc-ghl-embed', 'true');
+      document.body.appendChild(es);
+    }
+  }
+
+  function ensureMode() {
+    if (mode) return;
+    if (FORM_MODE === 'embed')       mode = 'embed';
+    else if (FORM_MODE === 'bridge') mode = 'bridge';
+    else mode = bridgeReachable() ? 'bridge' : (GHL_FORM_URL ? 'embed' : 'bridge');
+
+    if (mode === 'embed') {
+      if (!GHL_FORM_URL) {
+        console.error('[TVC] Bridge cannot reach the GHL form and no GHL_FORM_URL is set.');
+        mode = 'bridge';
+      } else {
+        setupEmbed();
+        return;
+      }
+    }
+    setupBridge();
+  }
+
+  /* =====================================================================
+     CUSTOM FORM + BRIDGE
+  ===================================================================== */
+  var bridgeWired = false;
+
+  function setupBridge() {
+    if (bridgeWired) return;
+    bridgeWired = true;
+
+    form.hidden = false;
+    document.getElementById('tvcProgWrap').hidden = false;
+
+    /* ---------- choice pills ---------- */
+    root.querySelectorAll('[data-tvc-opt]').forEach(function (group) {
+      var key = group.getAttribute('data-tvc-opt');
+      group.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          picks[key] = b.getAttribute('data-v');
+          group.classList.remove('tvc-bad');
+          group.querySelectorAll('button').forEach(function (o) { o.classList.toggle('tvc-on', o === b); });
+        });
+      });
+    });
+
+    /* ---------- phone: format on blur, strip iOS country code ---------- */
+    var phoneEl = document.getElementById('tvcPhone');
+    phoneEl.addEventListener('blur', function () {
+      var d = phoneEl.value.replace(/\D/g, '');
+      if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+      if (d.length === 10) phoneEl.value = '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
+    });
+
+    nextBtn.addEventListener('click', function () { if (checkStep(step)) show(step + 1); });
+    backBtn.addEventListener('click', function () { show(step - 1); });
+    form.addEventListener('submit', onSubmit);
+  }
+
+  /* ---------- per-step validation ---------- */
+  function val(id) { return (document.getElementById(id).value || '').trim(); }
+  function bad(id) { document.getElementById(id).classList.add('tvc-bad'); }
+  function clearBad() {
+    root.querySelectorAll('.tvc-bad').forEach(function (el) { el.classList.remove('tvc-bad'); });
+    errEl.hidden = true;
+  }
+  function fail(msg) { errEl.textContent = msg; errEl.hidden = false; return false; }
+
+  function checkStep(n) {
+    clearBad();
+    if (n === 1) {
+      if (!val('tvcFullName')) { bad('tvcFullName'); return fail('Please enter your name.'); }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('tvcEmail'))) { bad('tvcEmail'); return fail('Please enter a valid email address.'); }
+      if (val('tvcPhone').replace(/\D/g, '').length < 7) { bad('tvcPhone'); return fail('Please enter a valid phone number.'); }
+    }
+    if (n === 2) {
+      if (!val('tvcBrand')) { bad('tvcBrand'); return fail('Please enter your brand name.'); }
+      if (!val('tvcSite'))  { bad('tvcSite');  return fail('Please add your website or TikTok Shop link.'); }
+      if (!picks.samples) { root.querySelector('[data-tvc-opt="samples"]').classList.add('tvc-bad'); return fail('Please pick how many samples you send per month.'); }
+      if (!picks.crm)     { root.querySelector('[data-tvc-opt="crm"]').classList.add('tvc-bad');     return fail('Please pick which affiliate CRM you use.'); }
+    }
+    if (n === 3) {
+      if (!picks.community) { root.querySelector('[data-tvc-opt="community"]').classList.add('tvc-bad'); return fail('Please tell us if you already have a creator community.'); }
+      if (!val('tvcBlocker')) { bad('tvcBlocker'); return fail('Please tell us what is getting in the way.'); }
+    }
+    return true;
+  }
+
+  function show(n) {
+    step = n;
+    steps.forEach(function (s) { s.classList.toggle('tvc-active', +s.getAttribute('data-step') === n); });
+    progFill.style.width = (n / TOTAL * 100) + '%';
+    progTxt.textContent = 'Step ' + n + ' of ' + TOTAL;
+    backBtn.hidden   = n === 1;
+    nextBtn.hidden   = n === TOTAL;
+    submitBtn.hidden = n !== TOTAL;
+    clearBad();
+    ov.scrollTop = 0;
+  }
+
+  function onSubmit(e) {
     e.preventDefault();
     if (busy) return;
     if (!checkStep(3)) return;
@@ -1714,9 +1757,7 @@
            '&name=' + encodeURIComponent(data.fullName);
       window.location.href = u;
     }, 4000);
-  });
-
-  } /* end custom form + bridge */
+  }
 
   /* ---------- hero video: mute toggle + dock on scroll ---------- */
   var video = document.getElementById('tvcHeroVideo');
