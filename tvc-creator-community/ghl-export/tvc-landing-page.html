@@ -595,7 +595,7 @@
   .tvc-fineprint { margin: 12px 0 0; text-align: center; font-size: 11px; color: rgba(255,255,255,.35); }
 
   .tvc-embed { margin-top: 18px; border-radius: 12px; overflow: hidden; }
-  .tvc-embed iframe { width: 100%; border: none; display: block; min-height: 620px; }
+  .tvc-embed iframe { width: 100%; border: none; display: block; min-height: 680px; }
 
   #tvc-root [hidden] { display: none !important; }
 </style>
@@ -1296,22 +1296,23 @@
      GHL_FORM_URL  — your GHL form's widget URL (Forms > your form > Share/Embed,
                      the URL inside the iframe src).
 
-     FORM_MODE     — 'auto'   (recommended) decide at runtime:
-                              use the custom form + bridge if this page's script
-                              can actually reach GHL's fields, otherwise show
-                              GHL's own form inside the branded popup.
-                     'bridge' force the custom form + bridge.
-                     'embed'  force GHL's own form in the popup.
+     FORM_MODE     — 'embed'  (recommended) GHL's own form runs inside the
+                              branded popup. GHL validates, stores, redirects
+                              and fires workflows itself. Nothing to map.
+                     'bridge' custom-built form that copies its answers into a
+                              GHL form placed on the same page. Only works if
+                              that form is NOT in an iframe, and every choice
+                              field has to be matched by label text.
+                     'auto'   use bridge if reachable, else embed.
 
-                     Why auto matters: when GHL places a form with its Form
-                     element it embeds it as an iframe from another domain
-                     (link.omnii.co). Browser security means no script here can
-                     read or write fields inside it, so the bridge cannot work
-                     in that setup — auto detects that and switches by itself. */
+                     'embed' is the default because it removes the whole class
+                     of problem: there is no field matching, so there is nothing
+                     to mis-match. The popup, the copy and the styling are still
+                     ours — only the inputs belong to GHL. */
   var BOOK_URL     = 'https://theviralcircle.io/booking-page';
   var PLAYBOOK_URL = '';
   var GHL_FORM_URL = 'https://link.omnii.co/widget/form/sdBDlvyd0I8SBPhsuq9A';
-  var FORM_MODE    = 'auto';
+  var FORM_MODE    = 'embed';
 
   /* How each question maps onto your hidden GHL form.
      `names`  — matched against the GHL input's name/id (exact first, then contains).
@@ -1603,19 +1604,52 @@
     embed.hidden = false;
     if (embed.children.length) return;
 
+    /* GHL's form_embed.js only auto-resizes and only forwards the post-submit
+       redirect to the PARENT window when the iframe carries the exact
+       attribute contract its inline embed snippet uses. Anything less and the
+       form renders in a fixed 680px box and redirects inside the iframe. */
+    var formId = GHL_FORM_URL.split('/').pop().split('?')[0];
+    var origin = GHL_FORM_URL.split('/widget/')[0];
+    var domId  = 'inline-' + formId;
+
     var f = document.createElement('iframe');
     f.src = GHL_FORM_URL;
-    f.scrolling = 'no';
+    f.id  = domId;
     f.setAttribute('title', 'Qualification form');
-    f.id = GHL_FORM_URL.split('/').pop().split('?')[0] + '_iframe';
+    f.setAttribute('data-layout', '{"id":"INLINE"}');
+    f.setAttribute('data-trigger-type', 'alwaysShow');
+    f.setAttribute('data-activation-type', 'alwaysActivated');
+    f.setAttribute('data-deactivation-type', 'neverDeactivate');
+    f.setAttribute('data-form-name', 'TVC Qualification');
+    f.setAttribute('data-layout-iframe-id', domId);
+    f.setAttribute('data-form-id', formId);
     embed.appendChild(f);
 
     if (!document.querySelector('script[data-tvc-ghl-embed]')) {
       var es = document.createElement('script');
-      es.src = 'https://link.msgsndr.com/js/form_embed.js';
+      es.src = origin + '/js/form_embed.js';
       es.async = true;
       es.setAttribute('data-tvc-ghl-embed', 'true');
       document.body.appendChild(es);
+    }
+
+    /* Backstop: if GHL's redirect fires inside the iframe instead of being
+       forwarded up, the visitor would end up viewing the booking page in a
+       680px box. Watch for the submit message and navigate the top window
+       ourselves. Harmless when form_embed.js already did it - the second
+       assignment to the same URL is a no-op. */
+    if (!window.tvcEmbedListener) {
+      window.tvcEmbedListener = true;
+      window.addEventListener('message', function (e) {
+        if (e.origin !== origin) return;
+        var raw;
+        try { raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data); }
+        catch (_) { return; }
+        if (!/submit|success|complete/i.test(raw || '')) return;
+        if (window.tvcEmbedDone) return;
+        window.tvcEmbedDone = true;
+        if (BOOK_URL) window.top.location.href = BOOK_URL;
+      }, false);
     }
   }
 
