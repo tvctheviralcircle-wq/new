@@ -595,7 +595,7 @@
   .tvc-fineprint { margin: 12px 0 0; text-align: center; font-size: 11px; color: rgba(255,255,255,.35); }
 
   .tvc-embed { margin-top: 18px; border-radius: 12px; overflow: hidden; }
-  .tvc-embed iframe { width: 100%; border: none; display: block; min-height: 680px; }
+  .tvc-embed iframe { width: 100%; border: none; display: block; min-height: 480px; }
 
   #tvc-root [hidden] { display: none !important; }
 </style>
@@ -1314,6 +1314,14 @@
   var GHL_FORM_URL = 'https://link.omnii.co/widget/form/sdBDlvyd0I8SBPhsuq9A';
   var FORM_MODE    = 'embed';
 
+  /* Copied from GHL > Forms > your form > Share/Embed. The NAME must match the
+     form's real name (GHL uses it for tracking and for workflow triggers that
+     filter by form). The HEIGHT is GHL's own data-height - it is the fallback
+     used until form_embed.js measures the real content and resizes, so a value
+     that is too small clips the form on slow connections. */
+  var GHL_FORM_NAME   = 'Opt in Form - Intro Offers';
+  var GHL_FORM_HEIGHT = 1780;
+
   /* How each question maps onto your hidden GHL form.
      `names`  — matched against the GHL input's name/id (exact first, then contains).
      `labels` — matched against the field's visible label text in the GHL form.
@@ -1604,10 +1612,12 @@
     embed.hidden = false;
     if (embed.children.length) return;
 
-    /* GHL's form_embed.js only auto-resizes and only forwards the post-submit
-       redirect to the PARENT window when the iframe carries the exact
-       attribute contract its inline embed snippet uses. Anything less and the
-       form renders in a fixed 680px box and redirects inside the iframe. */
+    /* GHL's Share/Embed dialog hands out a POPUP snippet by default: the iframe
+       starts at display:none and form_embed.js throws its own unbranded modal
+       over the page. We want the form INSIDE our modal, so we build the INLINE
+       variant instead - same widget URL, different wrapper attributes. The full
+       attribute set matters: form_embed.js only auto-resizes, and only forwards
+       the post-submit redirect up to the parent window, when it is all present. */
     var formId = GHL_FORM_URL.split('/').pop().split('?')[0];
     var origin = GHL_FORM_URL.split('/widget/')[0];
     var domId  = 'inline-' + formId;
@@ -1615,14 +1625,21 @@
     var f = document.createElement('iframe');
     f.src = GHL_FORM_URL;
     f.id  = domId;
-    f.setAttribute('title', 'Qualification form');
+    f.style.cssText = 'width:100%;border:none;border-radius:8px;height:' + GHL_FORM_HEIGHT + 'px';
+    f.setAttribute('title', GHL_FORM_NAME);
     f.setAttribute('data-layout', '{"id":"INLINE"}');
     f.setAttribute('data-trigger-type', 'alwaysShow');
+    f.setAttribute('data-trigger-value', '');
     f.setAttribute('data-activation-type', 'alwaysActivated');
+    f.setAttribute('data-activation-value', '');
     f.setAttribute('data-deactivation-type', 'neverDeactivate');
-    f.setAttribute('data-form-name', 'TVC Qualification');
+    f.setAttribute('data-deactivation-value', '');
+    f.setAttribute('data-form-name', GHL_FORM_NAME);
+    f.setAttribute('data-height', String(GHL_FORM_HEIGHT));
     f.setAttribute('data-layout-iframe-id', domId);
     f.setAttribute('data-form-id', formId);
+    f.setAttribute('data-cookie-consent', 'true');
+    f.setAttribute('data-cookie-consent-provider', 'auto');
     embed.appendChild(f);
 
     if (!document.querySelector('script[data-tvc-ghl-embed]')) {
