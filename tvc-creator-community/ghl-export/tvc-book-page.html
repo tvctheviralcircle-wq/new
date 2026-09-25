@@ -67,9 +67,9 @@
   .tvcb-cal-card {
     position: relative; margin: 40px auto 0; overflow: hidden;
     border-radius: 16px; background: var(--tvc-card);
-    min-height: 420px;
+    min-height: 640px;
   }
-  @media (min-width: 640px) { .tvcb-cal-card { min-height: 560px; } }
+  @media (min-width: 640px) { .tvcb-cal-card { min-height: 720px; } }
   .tvcb-cal-card iframe { width: 100%; border: none; display: block; min-height: inherit; }
 
   .tvcb-cal-loader {
@@ -143,16 +143,20 @@
   'use strict';
 
   /* ============ EDIT THIS ============
-     Your GHL calendar's booking-widget URL.
+     Both values come straight out of GHL: Calendars > (your calendar) >
+     three-dot menu > Embed. Copy them from that snippet rather than making
+     them up.
 
-     Find it in GHL: Calendars > (your calendar) > the three-dot menu >
-     Embed / Share. Copy the URL out of the iframe src, it looks like:
-       https://api.leadconnectorhq.com/widget/booking/AbC123xyz
+     GHL_CALENDAR_ID is the iframe id GHL generates ("{locationId}_{stamp}").
+     It looks arbitrary because it is, but form_embed.js uses it to match the
+     resize message to the right frame, so it has to be GHL's own value - a
+     guessed id means the calendar renders at the fallback height and never
+     grows to fit.
 
-     Leave it as an empty string and the slot just stays as an empty framed
-     box (matching the Whop page as it is today), so you can drop a GHL
-     Calendar element in on top of it instead. */
-  var GHL_CALENDAR_URL = '';
+     Leave the URL empty and the slot stays an empty framed box, so a GHL
+     Calendar element can be dropped on top of it instead. */
+  var GHL_CALENDAR_URL = 'https://link.omnii.co/widget/booking/ZToUpapwnMIzO1HYt1Hw';
+  var GHL_CALENDAR_ID  = 'eOIDYjUV10nf5HQnm6mD_1790366417777';
   /* =================================== */
 
   var root = document.getElementById('tvcb-root');
@@ -217,20 +221,22 @@
   iframe.src = url;
   iframe.scrolling = 'no';
   iframe.setAttribute('title', 'Book your call');
-  /* GHL's form_embed.js finds the frame by an id ending in _iframe and
-     auto-sizes it to the booking widget's real height. */
-  var slug = GHL_CALENDAR_URL.split('/').pop().split('?')[0];
-  iframe.id = slug + '_iframe';
-  iframe.style.width = '100%';
-  iframe.style.border = 'none';
-  iframe.style.minHeight = '560px';
+  /* GHL's own snippet carries allow="payment"; without it a calendar that
+     takes a deposit cannot open its payment step. */
+  iframe.setAttribute('allow', 'payment');
+  iframe.id = GHL_CALENDAR_ID || (GHL_CALENDAR_URL.split('/').pop().split('?')[0] + '_iframe');
+  iframe.style.cssText = 'width:100%;border:none;overflow:hidden;display:block';
   iframe.onload = function () { if (loader) loader.hidden = true; };
   card.appendChild(iframe);
 
-  /* auto-resize script (loaded at runtime: GHL strips literal script tags) */
+  /* Auto-resize script, loaded at runtime because GHL strips literal script
+     tags. It must come from the same domain as the widget - the generic
+     link.msgsndr.com copy does not resize a white-labelled link.omnii.co
+     widget. */
+  var origin = GHL_CALENDAR_URL.split('/widget/')[0];
   if (!document.querySelector('script[data-tvcb-ghl-embed]')) {
     var s = document.createElement('script');
-    s.src = 'https://link.msgsndr.com/js/form_embed.js';
+    s.src = origin + '/js/form_embed.js';
     s.async = true;
     s.setAttribute('data-tvcb-ghl-embed', 'true');
     document.body.appendChild(s);
