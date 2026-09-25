@@ -1360,6 +1360,33 @@
   var root = document.getElementById('tvc-root');
   if (!root) return;
 
+  /* Styles this block adds on top of the stylesheet, injected here rather than
+     shipped in the CSS block so only this block ever needs replacing.
+
+     .tvc-embed: the stylesheet rounds and clips this wrapper, and the iframe
+     used to round itself too. GHL's form renders its own bordered card flush
+     against the top of the iframe viewport, so both radii were shaving that
+     card's top-left and top-right corners - the border looked cut. The form
+     card supplies its own rounding, so neither is needed here. */
+  (function () {
+    var css = document.createElement('style');
+    css.textContent =
+      '#tvc-root .tvc-embed{border-radius:0;overflow:visible}' +
+      '#tvc-root .tvc-embed iframe{border-radius:0;display:block}' +
+      '#tvc-root .tvc-done{text-align:center;padding:8px 0 4px}' +
+      '#tvc-root .tvc-done__ring{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'background:linear-gradient(90deg,#7c2af8 0%,#ec1fa0 100%)}' +
+      '#tvc-root .tvc-done__ring svg{width:26px;height:26px;fill:#fff}' +
+      '#tvc-root .tvc-done__title{font-family:"Anton","Inter",sans-serif;margin:0;font-size:26px;' +
+        'text-transform:uppercase;line-height:1.2;color:#fff}' +
+      '#tvc-root .tvc-done__body{margin:14px auto 0;max-width:380px;font-size:14px;line-height:1.65;' +
+        'color:rgba(255,255,255,.65)}' +
+      '#tvc-root .tvc-done__body strong{color:#fff;font-weight:600}' +
+      '#tvc-root .tvc-done__btn{margin-top:22px}';
+    document.head.appendChild(css);
+  })();
+
   /* footer year */
   var yearEl = document.getElementById('tvcFooterCopy');
   if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
@@ -1636,7 +1663,7 @@
     var f = document.createElement('iframe');
     f.src = opts.url;
     f.id  = domId;
-    f.style.cssText = 'width:100%;border:none;border-radius:8px;height:' + opts.height + 'px';
+    f.style.cssText = 'width:100%;border:none;border-radius:0;display:block;height:' + opts.height + 'px';
     f.setAttribute('title', opts.name);
     f.setAttribute('data-layout', '{"id":"INLINE"}');
     f.setAttribute('data-trigger-type', 'alwaysShow');
@@ -1708,20 +1735,6 @@
   function buildPlaybookModal() {
     if (pbOv) return pbOv;
 
-    var css = document.createElement('style');
-    css.textContent =
-      '.tvc-done{text-align:center;padding:8px 0 4px}' +
-      '.tvc-done__ring{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'background:linear-gradient(90deg,#7c2af8 0%,#ec1fa0 100%)}' +
-      '.tvc-done__ring svg{width:26px;height:26px;fill:#fff}' +
-      '.tvc-done__title{font-family:"Anton","Inter",sans-serif;margin:0;font-size:26px;' +
-        'text-transform:uppercase;line-height:1.2;color:#fff}' +
-      '.tvc-done__body{margin:14px auto 0;max-width:380px;font-size:14px;line-height:1.65;' +
-        'color:rgba(255,255,255,.65)}' +
-      '.tvc-done__body strong{color:#fff;font-weight:600}' +
-      '.tvc-done__btn{margin-top:22px}';
-    document.head.appendChild(css);
 
     pbOv = document.createElement('div');
     pbOv.className = 'tvc-ov';
