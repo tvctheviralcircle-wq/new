@@ -1322,6 +1322,17 @@
   var GHL_FORM_NAME   = 'Opt in Form - Intro Offers';
   var GHL_FORM_HEIGHT = 1780;
 
+  /* PLAYBOOK LEAD MAGNET - a separate, much shorter GHL form (first name +
+     email) behind the "Email Me Free Playbook" button only. It does NOT
+     redirect: on submit the popup swaps to a "check your inbox" panel, and a
+     GHL workflow triggered by this form sends the playbook link by email.
+     Every other CTA on the page still opens the qualification form above.
+     Set PLAYBOOK_FORM_URL to '' to fall back to PLAYBOOK_URL, or to the
+     qualification form if that is empty too. */
+  var PLAYBOOK_FORM_URL    = 'https://link.omnii.co/widget/form/X5MsLsusc60wrNTLl0kY';
+  var PLAYBOOK_FORM_NAME   = 'Playbook Form';
+  var PLAYBOOK_FORM_HEIGHT = 526;
+
   /* How each question maps onto your hidden GHL form.
      `names`  — matched against the GHL input's name/id (exact first, then contains).
      `labels` — matched against the field's visible label text in the GHL form.
@@ -1392,10 +1403,12 @@
     bookLink.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
   }
 
+  /* The ONLY button that does not open the qualification form. */
   var playbookBtn = document.getElementById('tvcPlaybookBtn');
   if (playbookBtn) {
     playbookBtn.addEventListener('click', function () {
-      if (PLAYBOOK_URL) window.location.href = PLAYBOOK_URL;
+      if (PLAYBOOK_FORM_URL) openPlaybook();
+      else if (PLAYBOOK_URL) window.location.href = PLAYBOOK_URL;
       else openModal();
     });
   }
@@ -1605,28 +1618,26 @@
     return !!(resolve(MAP.email) && resolve(MAP.phone) && document.querySelector(GHL_SUBMIT));
   }
 
-  function setupEmbed() {
-    form.hidden = true;
-    document.getElementById('tvcProgWrap').hidden = true;
-    var embed = document.getElementById('tvcEmbed');
-    embed.hidden = false;
-    if (embed.children.length) return;
+  /* Mounts a GHL form as an INLINE iframe inside `container`.
 
-    /* GHL's Share/Embed dialog hands out a POPUP snippet by default: the iframe
-       starts at display:none and form_embed.js throws its own unbranded modal
-       over the page. We want the form INSIDE our modal, so we build the INLINE
-       variant instead - same widget URL, different wrapper attributes. The full
-       attribute set matters: form_embed.js only auto-resizes, and only forwards
-       the post-submit redirect up to the parent window, when it is all present. */
-    var formId = GHL_FORM_URL.split('/').pop().split('?')[0];
-    var origin = GHL_FORM_URL.split('/widget/')[0];
+     GHL's Share/Embed dialog hands out a POPUP snippet: the iframe starts at
+     display:none and form_embed.js throws its own unbranded modal over the
+     page. We want the form INSIDE our own modal, so we build the INLINE
+     variant instead - same widget URL, different wrapper attributes. The full
+     attribute set matters: form_embed.js only auto-resizes, and only reports
+     the submit, when it is all present. */
+  function mountGhlForm(opts) {
+    if (opts.container.children.length) return;
+
+    var formId = opts.url.split('/').pop().split('?')[0];
+    var origin = opts.url.split('/widget/')[0];
     var domId  = 'inline-' + formId;
 
     var f = document.createElement('iframe');
-    f.src = GHL_FORM_URL;
+    f.src = opts.url;
     f.id  = domId;
-    f.style.cssText = 'width:100%;border:none;border-radius:8px;height:' + GHL_FORM_HEIGHT + 'px';
-    f.setAttribute('title', GHL_FORM_NAME);
+    f.style.cssText = 'width:100%;border:none;border-radius:8px;height:' + opts.height + 'px';
+    f.setAttribute('title', opts.name);
     f.setAttribute('data-layout', '{"id":"INLINE"}');
     f.setAttribute('data-trigger-type', 'alwaysShow');
     f.setAttribute('data-trigger-value', '');
@@ -1634,40 +1645,146 @@
     f.setAttribute('data-activation-value', '');
     f.setAttribute('data-deactivation-type', 'neverDeactivate');
     f.setAttribute('data-deactivation-value', '');
-    f.setAttribute('data-form-name', GHL_FORM_NAME);
-    f.setAttribute('data-height', String(GHL_FORM_HEIGHT));
+    f.setAttribute('data-form-name', opts.name);
+    f.setAttribute('data-height', String(opts.height));
     f.setAttribute('data-layout-iframe-id', domId);
     f.setAttribute('data-form-id', formId);
     f.setAttribute('data-cookie-consent', 'true');
     f.setAttribute('data-cookie-consent-provider', 'auto');
-    embed.appendChild(f);
+    opts.container.appendChild(f);
 
-    if (!document.querySelector('script[data-tvc-ghl-embed]')) {
+    if (!document.querySelector('script[data-tvc-ghl-embed="' + origin + '"]')) {
       var es = document.createElement('script');
       es.src = origin + '/js/form_embed.js';
       es.async = true;
-      es.setAttribute('data-tvc-ghl-embed', 'true');
+      es.setAttribute('data-tvc-ghl-embed', origin);
       document.body.appendChild(es);
     }
 
-    /* Backstop: if GHL's redirect fires inside the iframe instead of being
-       forwarded up, the visitor would end up viewing the booking page in a
-       680px box. Watch for the submit message and navigate the top window
-       ourselves. Harmless when form_embed.js already did it - the second
-       assignment to the same URL is a no-op. */
-    if (!window.tvcEmbedListener) {
-      window.tvcEmbedListener = true;
-      window.addEventListener('message', function (e) {
-        if (e.origin !== origin) return;
-        var raw;
-        try { raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data); }
-        catch (_) { return; }
-        if (!/submit|success|complete/i.test(raw || '')) return;
-        if (window.tvcEmbedDone) return;
-        window.tvcEmbedDone = true;
-        if (BOOK_URL) window.top.location.href = BOOK_URL;
-      }, false);
+    if (opts.onSubmit) onFormSubmit(f, origin, opts.onSubmit);
+  }
+
+  /* Both forms live on the same GHL domain, so an origin check alone cannot
+     tell them apart - the playbook form would fire the qualification form's
+     redirect. Matching e.source against this iframe's own contentWindow
+     scopes each callback to exactly the form that sent the message. */
+  function onFormSubmit(iframe, origin, cb) {
+    window.addEventListener('message', function (e) {
+      if (e.origin !== origin) return;
+      if (e.source !== iframe.contentWindow) return;
+      var raw;
+      try { raw = typeof e.data === 'string' ? e.data : JSON.stringify(e.data); }
+      catch (_) { return; }
+      if (!/submit|success|complete/i.test(raw || '')) return;
+      if (iframe.tvcSubmitted) return;
+      iframe.tvcSubmitted = true;
+      cb();
+    }, false);
+  }
+
+  function setupEmbed() {
+    form.hidden = true;
+    document.getElementById('tvcProgWrap').hidden = true;
+    var embed = document.getElementById('tvcEmbed');
+    embed.hidden = false;
+    mountGhlForm({
+      url: GHL_FORM_URL, name: GHL_FORM_NAME, height: GHL_FORM_HEIGHT,
+      container: embed,
+      /* Backstop: if GHL's redirect fires inside the iframe rather than being
+         forwarded up, the visitor ends up viewing the booking page in a
+         1780px box. Harmless when form_embed.js already did it. */
+      onSubmit: function () { if (BOOK_URL) window.top.location.href = BOOK_URL; }
+    });
+  }
+
+  /* =====================================================================
+     PLAYBOOK LEAD-MAGNET POPUP
+     Built in JS rather than markup so this block stays the only one that
+     needs replacing - it reuses the modal classes already in the stylesheet
+     and injects only the few rules the success panel adds.
+  ===================================================================== */
+  var pbOv = null;
+
+  function buildPlaybookModal() {
+    if (pbOv) return pbOv;
+
+    var css = document.createElement('style');
+    css.textContent =
+      '.tvc-done{text-align:center;padding:8px 0 4px}' +
+      '.tvc-done__ring{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'background:linear-gradient(90deg,#7c2af8 0%,#ec1fa0 100%)}' +
+      '.tvc-done__ring svg{width:26px;height:26px;fill:#fff}' +
+      '.tvc-done__title{font-family:"Anton","Inter",sans-serif;margin:0;font-size:26px;' +
+        'text-transform:uppercase;line-height:1.2;color:#fff}' +
+      '.tvc-done__body{margin:14px auto 0;max-width:380px;font-size:14px;line-height:1.65;' +
+        'color:rgba(255,255,255,.65)}' +
+      '.tvc-done__body strong{color:#fff;font-weight:600}' +
+      '.tvc-done__btn{margin-top:22px}';
+    document.head.appendChild(css);
+
+    pbOv = document.createElement('div');
+    pbOv.className = 'tvc-ov';
+    pbOv.id = 'tvcPbOv';
+    pbOv.innerHTML =
+      '<div class="tvc-gradient-border tvc-modal">' +
+        '<button type="button" class="tvc-modal__x" id="tvcPbX" aria-label="Close">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.29 1.41 1.41 6.3-6.29 6.3 6.29 1.41-1.41-6.3-6.29 6.3-6.3z"/></svg>' +
+        '</button>' +
+        '<div id="tvcPbIntro">' +
+          '<p class="tvc-modal__eyebrow">Free Playbook</p>' +
+          '<h2 class="tvc-modal__title">Where Should We Send It?</h2>' +
+          '<p class="tvc-modal__sub">Enter your name and email and the playbook lands in your inbox in about a minute.</p>' +
+          '<div class="tvc-embed" id="tvcPbEmbed"></div>' +
+        '</div>' +
+        '<div class="tvc-done" id="tvcPbDone" hidden>' +
+          '<div class="tvc-done__ring">' +
+            '<svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+          '</div>' +
+          '<h2 class="tvc-done__title">Check Your Inbox</h2>' +
+          '<p class="tvc-done__body">Your playbook is on the way - it usually arrives within a minute.' +
+            '<br><br>Can\'t see it? Check your <strong>Promotions</strong> tab and your ' +
+            '<strong>Spam</strong> folder, then drag it into your main inbox so the next one lands there too.</p>' +
+          '<button type="button" class="tvc-btn tvc-gradient-bg tvc-done__btn" id="tvcPbClose">Got It</button>' +
+        '</div>' +
+      '</div>';
+    /* Must live INSIDE #tvc-root: the gradient border, the gradient button
+       background, the --tvc-card colour and the [hidden] rule are all scoped
+       to that id, so a modal appended to <body> would render unstyled.
+       position:fixed still anchors to the viewport - #tvc-root sets no
+       transform or filter, so it creates no containing block. */
+    root.appendChild(pbOv);
+
+    function closePb() {
+      pbOv.classList.remove('tvc-open');
+      document.body.style.overflow = '';
     }
+    pbOv.querySelector('#tvcPbX').addEventListener('click', closePb);
+    pbOv.querySelector('#tvcPbClose').addEventListener('click', closePb);
+    pbOv.addEventListener('click', function (e) { if (e.target === pbOv) closePb(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && pbOv.classList.contains('tvc-open')) closePb();
+    });
+
+    mountGhlForm({
+      url: PLAYBOOK_FORM_URL, name: PLAYBOOK_FORM_NAME, height: PLAYBOOK_FORM_HEIGHT,
+      container: pbOv.querySelector('#tvcPbEmbed'),
+      /* No redirect here - swap the popup to the confirmation panel instead.
+         If this never fires, GHL's own on-submit message still shows inside
+         the iframe, so the visitor is never left staring at a filled form. */
+      onSubmit: function () {
+        pbOv.querySelector('#tvcPbIntro').hidden = true;
+        pbOv.querySelector('#tvcPbDone').hidden = false;
+        pbOv.scrollTop = 0;
+      }
+    });
+
+    return pbOv;
+  }
+
+  function openPlaybook() {
+    buildPlaybookModal().classList.add('tvc-open');
+    document.body.style.overflow = 'hidden';
   }
 
   function ensureMode() {
