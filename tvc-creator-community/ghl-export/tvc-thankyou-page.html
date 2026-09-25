@@ -79,15 +79,21 @@
 
   /* VIDEO */
   .tvct-video {
-    position: relative; margin: 36px auto 0; max-width: 640px; aspect-ratio: 16/9;
+    position: relative; margin: 36px auto 0; max-width: 640px;
+    /* 16/9 is only the placeholder until the file reports its real dimensions -
+       JS overrides both this and max-width once metadata loads, so a vertical
+       clip is not stretched into a letterboxed landscape box. */
+    aspect-ratio: 16/9;
     overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
     background: linear-gradient(135deg, #1a0b22, #0d0410);
     box-shadow: 0 25px 60px -20px rgba(88,0,64,.4);
   }
-  .tvct-video video { width: 100%; height: 100%; display: block; }
+  .tvct-video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
   .tvct-video__poster {
+    position: absolute; inset: 0; z-index: 2;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-    width: 100%; height: 100%; border: none; background: transparent; cursor: pointer;
+    width: 100%; height: 100%; border: none; cursor: pointer;
+    background: linear-gradient(180deg, rgba(6,1,7,.15) 0%, rgba(6,1,7,.55) 100%);
   }
   .tvct-video__play {
     width: 48px; height: 48px; border-radius: 999px; background: rgba(255,255,255,.95); color: #000;
@@ -203,9 +209,8 @@
 
   /* ====== EDIT THIS ======
      Direct URL to your explainer video (mp4). Leave it as an empty string and
-     the whole video card stays hidden, so nothing broken shows on the page.
-     The Whop version of this page has no video source set yet. */
-  var VIDEO_URL = '';
+     the whole video card stays hidden, so nothing broken shows on the page. */
+  var VIDEO_URL = 'https://assets.cdn.filesafe.space/U6iljIZCcQuUJGSNypWA/media/6ab6e0eb3dbd5f2bbbd5ad0e.mp4';
   /* ======================= */
 
   var root = document.getElementById('tvct-root');
@@ -245,17 +250,38 @@
 
   if (card && poster && VIDEO_URL) {
     card.hidden = false;
+
+    /* Mount the video straight away, muted and without controls, sitting
+       UNDER the play overlay. Two reasons: the thumbnail becomes the clip's
+       own first frame rather than a flat gradient, and the file reports its
+       real dimensions so the card can size itself to them. */
+    var video = document.createElement('video');
+    video.src = VIDEO_URL;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('preload', 'metadata');
+    card.insertBefore(video, poster);
+
+    video.addEventListener('loadedmetadata', function () {
+      var w = video.videoWidth, h = video.videoHeight;
+      if (!w || !h) return;
+      card.style.aspectRatio = w + ' / ' + h;
+      /* A portrait clip at the landscape max-width would stand over 1100px
+         tall and push everything below it off the screen. */
+      if (h > w) card.style.maxWidth = '340px';
+      /* Nudging off zero forces the browser to paint a frame; left at 0 with
+         preload="metadata" many browsers show black until playback starts. */
+      try { video.currentTime = 0.05; } catch (e) { /* seek unsupported */ }
+    });
+
     poster.addEventListener('click', function () {
-      var video = document.createElement('video');
-      video.src = VIDEO_URL;
+      poster.hidden = true;
       video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
-      video.setAttribute('playsinline', '');
-      video.preload = 'metadata';
-      card.innerHTML = '';
-      card.appendChild(video);
-      video.play().catch(function () { /* autoplay blocked: controls are there */ });
+      video.muted = false;
+      /* Started by a real click, so sound is allowed. If it is blocked
+         anyway the controls are already showing. */
+      video.play().catch(function () { /* controls remain */ });
     });
   }
 })();
