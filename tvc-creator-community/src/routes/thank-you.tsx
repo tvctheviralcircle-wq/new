@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { VslPlayer } from '../components/VslPlayer'
+
+const VSL_URL =
+  'https://assets-2-prod.whop.com/public/uploads/2026-09-26/d261edb4-8d6a-4788-81d8-9c31b58d30da/video.mp4'
 
 export const Route = createFileRoute('/thank-you')({
   head: () => ({
@@ -22,7 +26,6 @@ const EXPECTATIONS = [
 
 function ThankYouPage() {
   const [name, setName] = useState('')
-  const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
     try {
@@ -78,33 +81,7 @@ function ThankYouPage() {
           </p>
 
           {/* Explainer video */}
-          <div className="relative mx-auto mt-9 aspect-video max-w-2xl overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#1a0b22] to-[#0d0410] shadow-2xl shadow-fuchsia-950/40 sm:mt-10 sm:rounded-2xl">
-            {playing ? (
-              <video
-                className="h-full w-full"
-                controls
-                autoPlay
-                playsInline
-                preload="metadata"
-              />
-            ) : (
-              <button
-                type="button"
-                aria-label="Play video"
-                onClick={() => setPlaying(true)}
-                className="flex h-full w-full flex-col items-center justify-center gap-3 sm:gap-4"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-black shadow-lg transition-transform hover:scale-110 active:scale-110 sm:h-16 sm:w-16">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5 sm:h-6 sm:w-6" fill="currentColor">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </span>
-                <span className="text-[11px] font-medium uppercase tracking-wide text-white/50 sm:text-sm">
-                  Watch: What Happens On Your Call
-                </span>
-              </button>
-            )}
-          </div>
+          <VslPlayer src={VSL_URL} className="mx-auto mt-9 max-w-2xl sm:mt-10" />
 
           {/* What happens next */}
           <div className="gradient-border mx-auto mt-10 max-w-2xl rounded-2xl bg-[var(--tvc-card)] p-6 text-left sm:p-8">

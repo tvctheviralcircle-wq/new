@@ -66,6 +66,13 @@ function BookPage() {
 
           {/* Booking widget — space reserved for now */}
           <div className="gradient-border relative mx-auto mt-10 min-h-[420px] overflow-hidden rounded-2xl bg-[var(--tvc-card)] sm:min-h-[560px]" />
+
+          <p className="mx-auto mt-8 max-w-xl text-xs text-white/40">
+            Already booked but the page didn't move?{' '}
+            <Link to="/thank-you" className="text-fuchsia-400 underline underline-offset-2">
+              Continue →
+            </Link>
+          </p>
         </div>
       </section>
 

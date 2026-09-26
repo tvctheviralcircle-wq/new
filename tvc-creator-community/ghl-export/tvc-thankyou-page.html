@@ -77,42 +77,46 @@
   }
   @media (min-width: 768px) { .tvct-hero h1 { font-size: 48px; } }
 
-  /* VIDEO */
-  .tvct-video {
-    position: relative; margin: 36px auto 0; max-width: 640px;
-    /* 16/9 is only the placeholder until the file reports its real dimensions -
-       JS overrides both this and max-width once metadata loads, so a vertical
-       clip is not stretched into a letterboxed landscape box. */
-    aspect-ratio: 16/9;
-    overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
+  /* VIDEO - mirrors the landing page's hero player: autoplays muted, loops,
+     and docks to a small floating frame once it scrolls out of view. */
+  .tvct-video-wrap { margin: 36px auto 0; max-width: 640px; }
+  .tvct-video-box {
+    position: relative; aspect-ratio: 16/9; width: 100%; overflow: hidden;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
     background: linear-gradient(135deg, #1a0b22, #0d0410);
     box-shadow: 0 25px 60px -20px rgba(88,0,64,.4);
   }
-  .tvct-video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
-  /* The video autoplays muted underneath, so the overlay must not obscure it:
-     it is a transparent full-card hit area with a pill floating at the bottom,
-     rather than the dark scrim a click-to-play poster needs. */
-  .tvct-video__poster {
-    position: absolute; inset: 0; z-index: 2;
-    display: flex; align-items: flex-end; justify-content: center;
-    width: 100%; height: 100%; padding: 0 0 16px; border: none; cursor: pointer;
-    background: linear-gradient(180deg, rgba(6,1,7,0) 62%, rgba(6,1,7,.55) 100%);
+  .tvct-video-box.tvct-docked {
+    position: fixed; right: 12px; top: 76px; z-index: 40; width: 160px; height: auto;
+    border-radius: 10px; box-shadow: 0 20px 45px -12px rgba(88,0,64,.5);
   }
-  .tvct-video__pill {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 16px; border-radius: 999px;
-    background: rgba(255,255,255,.95); color: #000;
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    box-shadow: 0 10px 25px -8px rgba(0,0,0,.6);
-    transition: transform .2s ease;
+  .tvct-video-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tvct-sound-btn {
+    position: absolute; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+    background: rgba(0,0,0,.7); padding: 8px 16px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .03em; color: #fff; backdrop-filter: blur(4px);
+    border: none; cursor: pointer; font-family: inherit; transition: transform .2s ease;
   }
-  .tvct-video__poster:hover .tvct-video__pill { transform: scale(1.06); }
-  .tvct-video__pill svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .tvct-unmute-btn { bottom: 12px; left: 50%; transform: translateX(-50%); }
+  .tvct-unmute-btn:hover { transform: translateX(-50%) scale(1.05); }
+  .tvct-mute-btn { left: 12px; top: 12px; }
+  .tvct-mute-btn:hover { transform: scale(1.05); }
+  .tvct-video-box.tvct-docked .tvct-sound-btn { padding: 4px 8px; font-size: 8px; }
+  .tvct-video-box.tvct-docked .tvct-unmute-btn { bottom: 4px; }
+  .tvct-video-box.tvct-docked .tvct-mute-btn { left: 4px; top: 4px; }
+  .tvct-video-box.tvct-docked .tvct-sound-btn span { display: none; }
+  .tvct-sound-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .tvct-video-close {
+    position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; border-radius: 999px;
+    background: rgba(0,0,0,.7); color: rgba(255,255,255,.8); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 2;
+  }
+  .tvct-video-close svg { width: 12px; height: 12px; }
   @media (min-width: 640px) {
-    .tvct-video { border-radius: 16px; }
-    .tvct-video__poster { padding-bottom: 20px; }
-    .tvct-video__pill { font-size: 12px; padding: 11px 20px; }
-    .tvct-video__pill svg { width: 18px; height: 18px; }
+    .tvct-video-box { border-radius: 16px; }
+    .tvct-video-box.tvct-docked { right: 20px; top: 92px; width: 256px; border-radius: 12px; }
+    .tvct-video-box.tvct-docked .tvct-sound-btn span { display: inline; }
+    .tvct-mute-btn { left: 16px; top: 16px; }
   }
 
   /* WHAT HAPPENS CARD */
@@ -169,13 +173,25 @@
       <h1 class="tvct-display" id="tvctHeadline">Thanks. See You On The Call.</h1>
       <p class="tvct-hero__sub">A calendar invite is on its way to your inbox. While you wait, here's exactly what to expect.</p>
 
-      <div class="tvct-video" id="tvctVideoCard" hidden>
-        <button type="button" class="tvct-video__poster" id="tvctVideoPoster" aria-label="Turn on sound">
-          <span class="tvct-video__pill" id="tvctVideoPill">
-            <svg viewBox="0 0 24 24" fill="currentColor" id="tvctVideoIcon"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.2l2.45 2.45A4.5 4.5 0 0 0 16.5 12ZM19 12a7 7 0 0 1-1.1 3.73l1.46 1.46A8.96 8.96 0 0 0 21 12a9 9 0 0 0-7-8.77v2.06A7 7 0 0 1 19 12ZM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25A6.9 6.9 0 0 1 14 18.7v2.06a9 9 0 0 0 3.69-1.52L19.73 21 21 19.73 4.27 3ZM12 4 9.91 6.09 12 8.18V4Z"/></svg>
-            <span id="tvctVideoLabel">Tap For Sound</span>
-          </span>
-        </button>
+      <div class="tvct-video-wrap" id="tvctVideoWrap" hidden>
+        <div id="tvctVideoAnchor"></div>
+        <div id="tvctVideoBox" class="tvct-video-box">
+          <video id="tvctVideo" autoplay muted loop playsinline preload="auto"></video>
+
+          <button type="button" id="tvctUnmuteBtn" class="tvct-sound-btn tvct-unmute-btn" aria-label="Tap for sound">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-3.5ZM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77ZM3 9v6h4l5 5V4L7 9H3Z"/></svg>
+            <span>Tap for sound</span>
+          </button>
+
+          <button type="button" id="tvctMuteBtn" class="tvct-sound-btn tvct-mute-btn" aria-label="Mute" hidden>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.42.05-.63Zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71ZM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L18.73 21 20 19.73l-9-9L4.27 3ZM12 4l-1.88 1.88L12 7.76V4Z"/></svg>
+            <span>Mute</span>
+          </button>
+
+          <button type="button" id="tvctVideoClose" class="tvct-video-close" aria-label="Close video" hidden>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.41 1.41 6.3 6.3-6.3 6.29 1.41 1.41 6.3-6.29 6.3 6.29 1.41-1.41-6.3-6.29 6.3-6.3z"/></svg>
+          </button>
+        </div>
       </div>
 
       <div class="tvct-gradient-border tvct-next">
@@ -249,64 +265,66 @@
     headline.textContent = 'Thanks, ' + leadName.split(' ')[0] + '. See You On The Call.';
   }
 
-  /* ---------- explainer video ---------- */
-  var card = document.getElementById('tvctVideoCard');
-  var poster = document.getElementById('tvctVideoPoster');
+  /* ---------- explainer video ----------
+     Autoplay requires muted - every current browser blocks a clip that starts
+     with sound - so it opens muted with a one-tap sound control, and docks to
+     a small floating frame once it scrolls out of view. */
+  var wrap    = document.getElementById('tvctVideoWrap');
+  var box     = document.getElementById('tvctVideoBox');
+  var video   = document.getElementById('tvctVideo');
+  var anchor  = document.getElementById('tvctVideoAnchor');
+  var unmuteBtn = document.getElementById('tvctUnmuteBtn');
+  var muteBtn   = document.getElementById('tvctMuteBtn');
+  var closeBtn  = document.getElementById('tvctVideoClose');
 
-  if (card && poster && VIDEO_URL) {
-    card.hidden = false;
-
-    /* Muted is the price of autoplay: every current browser blocks a clip that
-       starts with sound, and a rejected play() would leave a dead black box.
-       So it starts muted and the overlay offers sound as one tap. */
-    var video = document.createElement('video');
+  if (wrap && video && VIDEO_URL) {
+    wrap.hidden = false;
     video.src = VIDEO_URL;
-    video.muted = true;
-    video.autoplay = true;
-    video.playsInline = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('autoplay', '');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('preload', 'auto');
-    card.insertBefore(video, poster);
+    video.play().catch(function () { /* blocked: the sound button still works */ });
 
-    var label = document.getElementById('tvctVideoLabel');
-    var soundOn = false;
+    var hasUnmutedBefore = false;
+    var dismissed = false;
 
-    video.addEventListener('loadedmetadata', function () {
-      var w = video.videoWidth, h = video.videoHeight;
-      if (!w || !h) return;
-      card.style.aspectRatio = w + ' / ' + h;
-      /* A portrait clip at the landscape max-width would stand over 1100px
-         tall and push everything below it off the screen. */
-      if (h > w) card.style.maxWidth = '340px';
-    });
-
-    /* Data-saver modes and some mobile browsers refuse even a muted autoplay.
-       Relabel rather than leaving a still frame that looks broken. */
-    var kick = video.play();
-    if (kick && kick.catch) {
-      kick.catch(function () {
-        if (label) label.textContent = 'Tap To Play';
-      });
-    }
-
-    poster.addEventListener('click', function () {
-      if (soundOn) return;
-      soundOn = true;
-      poster.hidden = true;
+    unmuteBtn.addEventListener('click', function () {
       video.muted = false;
-      video.controls = true;
-      /* Restart so they hear it from the top rather than joining partway in. */
-      try { video.currentTime = 0; } catch (e) { /* seek unsupported */ }
-      video.play().catch(function () { /* controls are showing */ });
+      /* Only the first unmute rewinds, so muting and unmuting again later does
+         not throw them back to the start. */
+      if (!hasUnmutedBefore) { video.currentTime = 0; hasUnmutedBefore = true; }
+      video.play().catch(function () { /* nothing more we can do */ });
+      unmuteBtn.hidden = true;
+      muteBtn.hidden = false;
     });
 
-    /* Once it ends, hand back full controls so it can be replayed. */
-    video.addEventListener('ended', function () {
-      video.controls = true;
-      poster.hidden = true;
+    muteBtn.addEventListener('click', function () {
+      video.muted = true;
+      muteBtn.hidden = true;
+      unmuteBtn.hidden = false;
     });
+
+    closeBtn.addEventListener('click', function () {
+      dismissed = true;
+      box.classList.remove('tvct-docked');
+      wrap.style.minHeight = '';
+      closeBtn.hidden = true;
+    });
+
+    if (anchor && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        var isDocked = !entries[0].isIntersecting;
+        if (isDocked && !dismissed) {
+          /* Pin the wrapper to the height it had before the box goes fixed,
+             otherwise everything below jumps up the moment it docks. */
+          wrap.style.minHeight = box.offsetHeight + 'px';
+          box.classList.add('tvct-docked');
+          closeBtn.hidden = false;
+        } else {
+          box.classList.remove('tvct-docked');
+          wrap.style.minHeight = '';
+          closeBtn.hidden = true;
+          if (!isDocked) dismissed = false;
+        }
+      }, { rootMargin: '-88px 0px 0px 0px', threshold: 0 }).observe(anchor);
+    }
   }
 })();
 </script>
