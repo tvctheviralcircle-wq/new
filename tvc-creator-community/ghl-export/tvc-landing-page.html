@@ -1417,7 +1417,54 @@
     ov.classList.remove('tvc-open');
     document.body.style.overflow = '';
   }
-  root.querySelectorAll('[data-tvc-scroll-book]').forEach(function (b) { b.addEventListener('click', openModal); });
+  /* Waits for a smooth scroll to settle, then runs cb once. There is no
+     reliably supported "scroll finished" event, so this watches the offset
+     until it stops moving.
+
+     Deliberately setTimeout rather than requestAnimationFrame: rAF stops
+     entirely in a background tab, which would leave the button doing nothing
+     at all. Two independent stops guarantee the form opens either way - the
+     poll's own time cap, and a hard timer - both routed through a latch so
+     it can only open once. */
+  function afterScrollSettles(cb) {
+    var opened = false;
+    function fire() {
+      if (opened) return;
+      opened = true;
+      cb();
+    }
+    var last = null, stillSince = 0, started = Date.now();
+    (function tick() {
+      if (opened) return;
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var now = Date.now();
+      if (y === last) { if (!stillSince) stillSince = now; }
+      else { stillSince = 0; last = y; }
+      /* settled, or taking too long (the scroll may never start if the page
+         is already parked on the CTA) */
+      if (stillSince && now - stillSince > 120) return fire();
+      if (now - started > 1600) return fire();
+      setTimeout(tick, 50);
+    })();
+    setTimeout(fire, 1800);
+  }
+
+  /* The nav and hero CTAs travel to the closing "Book Your Call" block before
+     the form opens, so the visitor sees the offer they are opting into and,
+     on closing the popup, is left looking at that CTA rather than back at the
+     top of the page. */
+  root.querySelectorAll('[data-tvc-scroll-book]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var target = document.getElementById('tvcBookLink') || document.getElementById('book');
+      if (!target || !target.scrollIntoView) { openModal(); return; }
+      try {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        target.scrollIntoView(false);   /* older browsers: no options object */
+      }
+      afterScrollSettles(openModal);
+    });
+  });
   document.getElementById('tvcOvX').addEventListener('click', closeModal);
   ov.addEventListener('click', function (e) { if (e.target === ov) closeModal(); });
   document.addEventListener('keydown', function (e) {
