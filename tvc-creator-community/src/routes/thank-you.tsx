@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react'
 import { VslPlayer } from '../components/VslPlayer'
 
 const VSL_URL =
-  'https://assets-2-prod.whop.com/public/uploads/2026-09-26/d261edb4-8d6a-4788-81d8-9c31b58d30da/video.mp4'
+  'https://assets-2-prod.whop.com/public/uploads/2026-10-01/510d11ce-9325-4a8b-8f3c-896b3048a043/video.mp4'
+const VSL_MOBILE_URL =
+  'https://assets-2-prod.whop.com/public/uploads/2026-10-01/c7cfbece-688e-47c8-9363-734d171a8595/video.mp4'
 
 export const Route = createFileRoute('/thank-you')({
   head: () => ({
@@ -81,7 +83,11 @@ function ThankYouPage() {
           </p>
 
           {/* Explainer video */}
-          <VslPlayer src={VSL_URL} className="mx-auto mt-9 max-w-2xl sm:mt-10" />
+          <VslPlayer
+            src={VSL_URL}
+            srcMobile={VSL_MOBILE_URL}
+            className="mx-auto mt-9 max-w-2xl sm:mt-10"
+          />
 
           {/* What happens next */}
           <div className="gradient-border mx-auto mt-10 max-w-2xl rounded-2xl bg-[var(--tvc-card)] p-6 text-left sm:p-8">

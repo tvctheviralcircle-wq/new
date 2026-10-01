@@ -229,9 +229,21 @@
   'use strict';
 
   /* ====== EDIT THIS ======
-     Direct URL to your explainer video (mp4). Leave it as an empty string and
-     the whole video card stays hidden, so nothing broken shows on the page. */
-  var VIDEO_URL = 'https://assets.cdn.filesafe.space/U6iljIZCcQuUJGSNypWA/media/6ab6e0eb3dbd5f2bbbd5ad0e.mp4';
+     Direct URLs to your explainer video (mp4).
+
+     VIDEO_URL        the wide cut, used on tablets and desktop.
+     VIDEO_URL_MOBILE a separate cut for phones. Leave it empty to serve the
+                      wide cut everywhere.
+
+     Which one loads is decided once, on load, at the same 767px breakpoint
+     the Whop site uses. Deliberately not re-checked on resize or rotation:
+     swapping the source mid-playback restarts the video from zero, which is
+     worse than a phone held sideways getting the wide cut.
+
+     Leave VIDEO_URL empty and the whole card stays hidden, so nothing broken
+     shows on the page. */
+  var VIDEO_URL        = 'https://assets.cdn.filesafe.space/U6iljIZCcQuUJGSNypWA/media/6ab6e0eb3dbd5f2bbbd5ad0e.mp4';
+  var VIDEO_URL_MOBILE = 'https://assets-2-prod.whop.com/public/uploads/2026-10-01/c7cfbece-688e-47c8-9363-734d171a8595/video.mp4';
   /* ======================= */
 
   var root = document.getElementById('tvct-root');
@@ -279,7 +291,14 @@
 
   if (wrap && video && VIDEO_URL) {
     wrap.hidden = false;
-    video.src = VIDEO_URL;
+
+    /* matchMedia can be missing on very old browsers - fall back to the wide
+       cut rather than failing to load anything. */
+    var onPhone = false;
+    try {
+      onPhone = !!(window.matchMedia && window.matchMedia('(max-width: 767px)').matches);
+    } catch (e) { /* treat as desktop */ }
+    video.src = (onPhone && VIDEO_URL_MOBILE) ? VIDEO_URL_MOBILE : VIDEO_URL;
     video.play().catch(function () { /* blocked: the sound button still works */ });
 
     var hasUnmutedBefore = false;

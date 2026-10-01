@@ -1,12 +1,30 @@
 import { useEffect, useRef, useState } from 'react'
 
-export function VslPlayer({ src, className = '' }: { src: string; className?: string }) {
+export function VslPlayer({
+  src,
+  srcMobile,
+  className = '',
+}: {
+  src: string
+  srcMobile?: string
+  className?: string
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
   const hasUnmutedBefore = useRef(false)
   const [muted, setMuted] = useState(true)
   const [docked, setDocked] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [activeSrc, setActiveSrc] = useState<string | null>(srcMobile ? null : src)
+
+  useEffect(() => {
+    if (!srcMobile) {
+      setActiveSrc(src)
+      return
+    }
+    const useMobile = window.matchMedia('(max-width: 767px)').matches
+    setActiveSrc(useMobile ? srcMobile : src)
+  }, [src, srcMobile])
 
   useEffect(() => {
     const anchor = anchorRef.current
@@ -57,17 +75,21 @@ export function VslPlayer({ src, className = '' }: { src: string; className?: st
             : 'relative aspect-video w-full overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#1a0b22] to-[#0d0410] shadow-2xl shadow-fuchsia-950/40 sm:rounded-2xl'
         }
       >
-        <video
-          ref={videoRef}
-          src={src}
-          className="aspect-video h-full w-full"
-          controls
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-        />
+        {activeSrc ? (
+          <video
+            ref={videoRef}
+            src={activeSrc}
+            className="aspect-video h-full w-full"
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+        ) : (
+          <div className="aspect-video h-full w-full" />
+        )}
 
         {muted ? (
           <button
