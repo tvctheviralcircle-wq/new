@@ -1371,7 +1371,18 @@
   (function () {
     var css = document.createElement('style');
     css.textContent =
-      '#tvc-root .tvc-embed{border-radius:0;overflow:visible}' +
+      '#tvc-root .tvc-embed{border-radius:0;overflow:visible;position:relative}' +
+      /* While the GHL iframe fetches, cap the box and show a spinner. Without
+         this the popup opens as a tall empty rectangle, which reads as broken. */
+      '#tvc-root .tvc-embed--loading{max-height:340px;overflow:hidden}' +
+      '#tvc-root .tvc-skel{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;' +
+        'align-items:center;justify-content:center;gap:14px;background:#140a18}' +
+      '#tvc-root .tvc-skel__spin{width:26px;height:26px;border-radius:999px;' +
+        'border:2px solid rgba(255,255,255,.15);border-top-color:#ec1fa0;' +
+        'animation:tvc-skel-spin .8s linear infinite}' +
+      '@keyframes tvc-skel-spin{to{transform:rotate(360deg)}}' +
+      '#tvc-root .tvc-skel__txt{margin:0;font-size:12px;text-transform:uppercase;' +
+        'letter-spacing:.05em;color:rgba(255,255,255,.5)}' +
       '#tvc-root .tvc-embed iframe{border-radius:0;display:block}' +
       '#tvc-root .tvc-done{text-align:center;padding:8px 0 4px}' +
       '#tvc-root .tvc-done__ring{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;' +
@@ -1442,11 +1453,11 @@
       else { stillSince = 0; last = y; }
       /* settled, or taking too long (the scroll may never start if the page
          is already parked on the CTA) */
-      if (stillSince && now - stillSince > 120) return fire();
-      if (now - started > 1600) return fire();
+      if (stillSince && now - stillSince > 80) return fire();
+      if (now - started > 1200) return fire();
       setTimeout(tick, 50);
     })();
-    setTimeout(fire, 1800);
+    setTimeout(fire, 1400);
   }
 
   /* The nav and hero CTAs travel to the closing "Book Your Call" block before
@@ -1701,7 +1712,8 @@
      attribute set matters: form_embed.js only auto-resizes, and only reports
      the submit, when it is all present. */
   function mountGhlForm(opts) {
-    if (opts.container.children.length) return;
+    /* guard on the iframe, not on children - the skeleton below is a child too */
+    if (opts.container.querySelector('iframe')) return;
 
     var formId = opts.url.split('/').pop().split('?')[0];
     var origin = opts.url.split('/widget/')[0];
@@ -1725,6 +1737,17 @@
     f.setAttribute('data-form-id', formId);
     f.setAttribute('data-cookie-consent', 'true');
     f.setAttribute('data-cookie-consent-provider', 'auto');
+
+    var skel = document.createElement('div');
+    skel.className = 'tvc-skel';
+    skel.innerHTML = '<div class="tvc-skel__spin"></div>' +
+                     '<p class="tvc-skel__txt">Loading the form</p>';
+    opts.container.classList.add('tvc-embed--loading');
+    opts.container.appendChild(skel);
+    f.addEventListener('load', function () {
+      opts.container.classList.remove('tvc-embed--loading');
+      if (skel.parentNode) skel.parentNode.removeChild(skel);
+    });
     opts.container.appendChild(f);
 
     if (!document.querySelector('script[data-tvc-ghl-embed="' + origin + '"]')) {
@@ -1756,11 +1779,12 @@
     }, false);
   }
 
-  function setupEmbed() {
-    form.hidden = true;
-    document.getElementById('tvcProgWrap').hidden = true;
+  /* Mounting is split out of setupEmbed so the iframe can be fetched long
+     before anyone taps. Safe to call repeatedly - mountGhlForm no-ops once the
+     iframe exists. */
+  function mountQualForm() {
     var embed = document.getElementById('tvcEmbed');
-    embed.hidden = false;
+    if (!embed || !GHL_FORM_URL) return;
     mountGhlForm({
       url: GHL_FORM_URL, name: GHL_FORM_NAME, height: GHL_FORM_HEIGHT,
       container: embed,
@@ -1770,6 +1794,43 @@
       onSubmit: function () { if (BOOK_URL) window.top.location.href = BOOK_URL; }
     });
   }
+
+  function setupEmbed() {
+    form.hidden = true;
+    document.getElementById('tvcProgWrap').hidden = true;
+    document.getElementById('tvcEmbed').hidden = false;
+    mountQualForm();
+  }
+
+  /* =====================================================================
+     PRE-WARM
+     The form used to start downloading only when the popup opened, so the
+     visitor watched an empty box for about three seconds before any field
+     appeared. The iframe is fetched up front instead - iframes load normally
+     inside a display:none parent, so the popup can stay closed - and the
+     popup then reveals a form that is already rendered.
+
+     Held until after the window load event so it does not compete with the
+     hero video and fonts for the first paint. */
+  function warmGhlOrigin(url) {
+    var origin = url.split('/widget/')[0];
+    ['preconnect', 'dns-prefetch'].forEach(function (rel) {
+      if (document.querySelector('link[rel="' + rel + '"][href="' + origin + '"]')) return;
+      var l = document.createElement('link');
+      l.rel = rel;
+      l.href = origin;
+      if (rel === 'preconnect') l.crossOrigin = '';
+      document.head.appendChild(l);
+    });
+  }
+
+  (function schedulePrewarm() {
+    if (!GHL_FORM_URL || FORM_MODE === 'bridge') return;
+    warmGhlOrigin(GHL_FORM_URL);
+    var go = function () { setTimeout(mountQualForm, 250); };
+    if (document.readyState === 'complete') go();
+    else window.addEventListener('load', go);
+  })();
 
   /* =====================================================================
      PLAYBOOK LEAD-MAGNET POPUP
