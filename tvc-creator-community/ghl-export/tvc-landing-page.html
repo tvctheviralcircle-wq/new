@@ -1403,6 +1403,71 @@
   if (yearEl) yearEl.textContent = '© ' + new Date().getFullYear() + ' The Viral Circle. All rights reserved.';
 
   /* =====================================================================
+     TRACKING
+     Three events so the funnel is readable between "landed" and "submitted".
+     A zero at the end tells you nothing about where people stopped; these
+     say whether they ignored the button, hit a popup that never filled, or
+     abandoned a form they could see.
+
+       TVC_CTAClick     a qualification CTA was tapped  (cta: nav|hero|final)
+       TVC_FormOpen     the popup is open AND the form really rendered
+       TVC_FormStalled  the embed loaded but the GHL widget never booted
+       TVC_FormSubmit   GHL confirmed the submission
+
+     FormStalled is not gated on the popup being open - a form that fails to
+     boot is worth knowing about for every visitor, not just the ones who
+     tapped.
+
+     CTAClick minus FormOpen is the number that matters: it is people who
+     asked for the form and never got one.
+
+     Each fires at most once per page view, so the counts read as people
+     rather than taps.
+  ===================================================================== */
+  var TRACK_PREFIX = 'TVC_';
+  var tracked = {};
+  var trackQueue = [];
+  var trackRetry = null;
+  window.tvcTrackLog = [];
+
+  function flushTrackQueue() {
+    if (typeof window.fbq !== 'function') return false;
+    while (trackQueue.length) {
+      var e = trackQueue.shift();
+      try { window.fbq('trackCustom', e[0], e[1]); } catch (err) { /* pixel refused */ }
+    }
+    return true;
+  }
+
+  function track(name, params) {
+    var ev = TRACK_PREFIX + name;
+    if (tracked[ev]) return;
+    tracked[ev] = true;
+    params = params || {};
+
+    window.tvcTrackLog.push({ event: ev, params: params, t: Date.now() });
+    if (window.console && console.log) console.log('[TVC] ' + ev, params);
+
+    /* GTM / GA if this page has one; silently skipped when it does not */
+    try {
+      if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+        var d = { event: ev };
+        for (var k in params) { if (params.hasOwnProperty(k)) d[k] = params[k]; }
+        window.dataLayer.push(d);
+      }
+    } catch (err) { /* no GTM */ }
+
+    trackQueue.push([ev, params]);
+    if (flushTrackQueue() || trackRetry) return;
+    /* GHL injects the Meta base code itself, and it may not have run yet.
+       Hold the event and retry for ten seconds rather than dropping it. */
+    var tries = 0;
+    trackRetry = setInterval(function () {
+      if (flushTrackQueue() || ++tries > 40) { clearInterval(trackRetry); trackRetry = null; }
+    }, 250);
+  }
+
+  /* =====================================================================
      OPT-IN MODAL
   ===================================================================== */
   var ov        = document.getElementById('tvcOv');
@@ -1419,10 +1484,23 @@
   var picks     = {};
   var busy      = false;
 
+  /* Only true once the qualification iframe has finished loading. */
+  var qualFormReady = false;
+
+  /* FormOpen deliberately requires BOTH conditions. Firing it when the
+     overlay opens would hide exactly the failure we are hunting - a popup
+     that opens onto a form that never arrives. */
+  function maybeTrackFormOpen() {
+    if (!qualFormReady) return;
+    if (!ov.classList.contains('tvc-open')) return;
+    track('FormOpen', {});
+  }
+
   function openModal() {
     ensureMode();
     ov.classList.add('tvc-open');
     document.body.style.overflow = 'hidden';
+    maybeTrackFormOpen();
   }
   function closeModal() {
     ov.classList.remove('tvc-open');
@@ -1465,7 +1543,9 @@
      on closing the popup, is left looking at that CTA rather than back at the
      top of the page. */
   root.querySelectorAll('[data-tvc-scroll-book]').forEach(function (b) {
+    var where = b.closest('header') ? 'nav' : 'hero';
     b.addEventListener('click', function () {
+      track('CTAClick', { cta: where });
       var target = document.getElementById('tvcBookLink') || document.getElementById('book');
       if (!target || !target.scrollIntoView) { openModal(); return; }
       try {
@@ -1485,7 +1565,11 @@
   var bookLink = document.getElementById('tvcBookLink');
   if (bookLink) {
     bookLink.setAttribute('href', BOOK_URL);
-    bookLink.addEventListener('click', function (e) { e.preventDefault(); openModal(); });
+    bookLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      track('CTAClick', { cta: 'final' });
+      openModal();
+    });
   }
 
   /* The ONLY button that does not open the qualification form. */
@@ -1744,9 +1828,33 @@
                      '<p class="tvc-skel__txt">Loading the form</p>';
     opts.container.classList.add('tvc-embed--loading');
     opts.container.appendChild(skel);
-    f.addEventListener('load', function () {
+
+    function clearSkeleton() {
       opts.container.classList.remove('tvc-embed--loading');
       if (skel.parentNode) skel.parentNode.removeChild(skel);
+    }
+
+    /* Readiness deliberately does NOT key off the load event. A 404 or an
+       error page fires load exactly like a working form does, so load alone
+       would report a form the visitor never actually saw - the precise false
+       positive that sends you hunting the wrong problem. GHL's form_embed.js
+       posting its first message is real proof the widget booted. */
+    var ready = false;
+    window.addEventListener('message', function (e) {
+      if (e.origin !== origin || e.source !== f.contentWindow) return;
+      if (ready) return;
+      ready = true;
+      clearSkeleton();
+      if (opts.onReady) opts.onReady();
+    }, false);
+
+    f.addEventListener('load', function () {
+      clearSkeleton();
+      /* Document arrived but the widget never spoke: that is a broken embed,
+         and it should be visible in the data rather than silent. */
+      setTimeout(function () {
+        if (!ready && opts.onStalled) opts.onStalled();
+      }, 4000);
     });
     opts.container.appendChild(f);
 
@@ -1788,10 +1896,18 @@
     mountGhlForm({
       url: GHL_FORM_URL, name: GHL_FORM_NAME, height: GHL_FORM_HEIGHT,
       container: embed,
+      onReady:   function () { qualFormReady = true; maybeTrackFormOpen(); },
+      onStalled: function () { track('FormStalled', {}); },
       /* Backstop: if GHL's redirect fires inside the iframe rather than being
          forwarded up, the visitor ends up viewing the booking page in a
          1780px box. Harmless when form_embed.js already did it. */
-      onSubmit: function () { if (BOOK_URL) window.top.location.href = BOOK_URL; }
+      onSubmit: function () {
+        track('FormSubmit', {});
+        if (!BOOK_URL) return;
+        /* Give the pixel beacon a moment to leave before navigating away,
+           otherwise the submit can be lost on the redirect. */
+        setTimeout(function () { window.top.location.href = BOOK_URL; }, 350);
+      }
     });
   }
 
@@ -1894,6 +2010,7 @@
          If this never fires, GHL's own on-submit message still shows inside
          the iframe, so the visitor is never left staring at a filled form. */
       onSubmit: function () {
+        track('PlaybookSubmit', {});
         pbOv.querySelector('#tvcPbIntro').hidden = true;
         pbOv.querySelector('#tvcPbDone').hidden = false;
         pbOv.scrollTop = 0;
