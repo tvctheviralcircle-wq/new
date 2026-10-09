@@ -21,8 +21,14 @@ over={
  '7494567052463147208':'Also £63.1K in Household Appliances ranking → well above band',
  '7495320015950547394':'Verified shop-wide last-28-day GMV = £33,617 (56.9% product card, 43.1% affiliate)',
 }
+# later multi-category findings (extra_notes.tsv): seller_id, level (Low/Medium), note; last entry wins
+medium={}
+for sid,lvl,note in csv.reader(open(D+'extra_notes.tsv'),delimiter='\t'):
+    if lvl=='Low': over[sid]=note; medium.pop(sid,None)
+    elif sid not in over: medium[sid]=note
 def conf(r):
     if r['seller_id'] in over: return 'Low – likely above £30K'
+    if r['seller_id'] in medium: return 'Medium – may sell in other categories'
     if r['ranked_in_category']!=r['main_category']: return 'Medium – may sell in other categories'
     return 'High'
 
@@ -47,7 +53,7 @@ for r in rows:
       'UK local' if r['shop_type']=='local' else 'Cross-border',
       float(r['gmv_gbp']),int(r['units_sold']),float(r['gmv_growth_pct'])/100,float(r['units_growth_pct'])/100,
       int(r['affiliate_creators']),int(r['products_with_sales']),int(r['active_products']),float(r['shop_rating']),
-      conf(r),over.get(r['seller_id']) or (None if d or True else None),
+      conf(r),over.get(r['seller_id']) or medium.get(r['seller_id']),
       h or None,(f'https://www.tiktok.com/@{h}' if h else None),
       num('tiktok_followers',int) if h else None,num('tiktok_videos',int) if h else None,d.get('shop_created') or None,
       num('alltime_gmv_gbp'),num('alltime_units',int),num('total_products',int),num('alltime_creators',int),
@@ -78,11 +84,11 @@ t.tableStyleInfo=TableStyleInfo(name='TableStyleLight9',showRowStripes=True); ws
 # Summary sheet with formulas
 s=wb.create_sheet('Category Summary')
 s.append(['Category','Leads found','High confidence','With TikTok profile data','Avg Sep GMV in category (£)','Rows searched (ranking page)'])
-pages={'Automotive & Motorcycle':'p4','Baby & Maternity':'p4','Beauty & Personal Care':'p30 (+p50 units-sorted)','Collectibles':'p5',
- 'Computers & Office Equipment':'p2','Fashion Accessories':'p8','Food & Beverages':'p10','Health':'p12','Home Improvement':'p6',
- 'Home Supplies':'p15 (+p50 units-sorted)','Household Appliances':'p12',"Kids' Fashion":'p3','Kitchenware':'p5','Menswear & Underwear':'p10',
- 'Muslim Fashion':'p5','Pet Supplies':'p3','Phones & Electronics':'p15','Sports & Outdoor':'p10','Textiles & Soft Furnishings':'p7',
- 'Tools & Hardware':'p3','Toys & Hobbies':'p6','Womenswear & Underwear':'p50 units-sorted (p25 was above band)','Shoes':'p6','Luggage & Bags':'p3'}
+pages={'Automotive & Motorcycle':'p4–p6','Baby & Maternity':'p3–p5','Beauty & Personal Care':'p29–p31 (+p50 units-sorted)','Collectibles':'p5–p7',
+ 'Computers & Office Equipment':'p2–p4','Fashion Accessories':'p7–p9','Food & Beverages':'p10–p12','Health':'p11–p13','Home Improvement':'p5–p7',
+ 'Home Supplies':'p15–p17 (+p50 units-sorted)','Household Appliances':'p10–p12',"Kids' Fashion":'p2–p4','Kitchenware':'p5–p7','Menswear & Underwear':'p9–p11',
+ 'Muslim Fashion':'p4–p5 (p6 already below £10K)','Pet Supplies':'p3–p5','Phones & Electronics':'p12, p14, p15','Sports & Outdoor':'p10–p12','Textiles & Soft Furnishings':'p6–p8',
+ 'Tools & Hardware':'p3–p4','Toys & Hobbies':'p6–p7','Womenswear & Underwear':'p27, p30 (+p50 units-sorted); band runs to p50+','Shoes':'p5–p7','Luggage & Bags':'p3–p5','Furniture':'p6–p8 (p2 above, p15 below band)'}
 cats=sorted(set(r['ranked_in_category'] for r in rows))
 for i,c in enumerate(cats,start=2):
     s.append([c,f"=COUNTIF('UK Leads'!$A$2:$A${n},A{i})",
@@ -91,8 +97,6 @@ for i,c in enumerate(cats,start=2):
       f"=AVERAGEIF('UK Leads'!$A$2:$A${n},A{i},'UK Leads'!$F$2:$F${n})", pages.get(c,'')])
 m=s.max_row
 s.append(['Total',f'=SUM(B2:B{m})',f'=SUM(C2:C{m})',f'=SUM(D2:D{m})',None,None])
-for c in ['Furniture']:
-    s.append([c,0,0,0,None,'Checked one page – still above £30K; band is deeper (not reached on trial credits)'])
 for row in s.iter_rows():
     for c in row:
         c.font=Font(name=F,size=10,bold=(c.row==1 or row[0].value=='Total'),color=('FFFFFF' if c.row==1 else None))
@@ -118,11 +122,11 @@ notes=[
  '• Band confidence: High = ranked in its own main category; Medium = ranked outside its main category; Low = we saw evidence it is above £30K in total.',
  '• "UK overall rank (Sep)" is a useful cross-check: UK rank 500 ≈ £36K/month, so ranks well above ~700 are consistent with the band.',
  '',
- 'Profile columns (TikTok handle → UK overall rank) were filled for 54 UK-based shops, chosen to cover every category. The rest are blank to save credits.',
+ 'Profile columns (TikTok handle → UK overall rank) were filled for 99 UK-based, high-confidence shops, spread across every category. The rest are blank to save credits.',
  'Contact data: FastMoss does not provide emails/phones for shops. The TikTok handle / profile URL is the outreach route; company name helps with Companies House / LinkedIn lookups.',
  '',
- 'Not covered yet: Furniture (band is deeper than page 2); Books and other small categories were not probed.',
- 'Update 9 Oct 2026: added Shoes (10) and Luggage & Bags (7) leads. Next daily trial batch (100 credits) unlocks 10 Oct 03:53 FastMoss time.',
+ 'Coverage: 25 top-level categories, ~3 ranking pages each. Womenswear and Beauty have the deepest £10–30K bands, so they are the least complete. Books and other small categories were not probed.',
+ 'Update log: 9 Oct – added Shoes & Luggage (17). 10 Oct trial batch – added Furniture and 2 more pages per category (+425 leads, 45 new profiles).',
 ]
 for l in notes: nt.append([l])
 nt.column_dimensions['A'].width=140
