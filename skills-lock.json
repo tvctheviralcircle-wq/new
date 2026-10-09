@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "fastmoss-skills": {
+      "source": "FastMoss/fastmoss-skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "ccc40432bc76909dcf2f5b6cc202cf3eaea7b2372a867ece9e32cf450659a931"
+    }
+  }
+}
