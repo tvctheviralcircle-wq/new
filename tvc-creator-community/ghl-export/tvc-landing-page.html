@@ -1538,22 +1538,31 @@
     setTimeout(fire, 1400);
   }
 
-  /* The nav and hero CTAs travel to the closing "Book Your Call" block before
-     the form opens, so the visitor sees the offer they are opting into and,
-     on closing the popup, is left looking at that CTA rather than back at the
-     top of the page. */
+  /* Every qualification CTA now leaves for the booking page, where the form
+     and the calendar live together as one two-step flow. The popup below is
+     kept only for the playbook lead magnet.
+
+     The short delay before navigating is for the pixel, not for the visitor:
+     fbq dispatches an image beacon, and a navigation fired in the same tick
+     can cancel it before it leaves. 150ms is under the threshold anyone
+     notices and is long enough for the request to go. */
+  function leaveFor(url, where) {
+    track('CTAClick', { cta: where });
+    if (!url) return;
+    var gone = false;
+    var go = function () {
+      if (gone) return;
+      gone = true;
+      window.location.href = url;
+    };
+    setTimeout(go, 150);
+  }
+
   root.querySelectorAll('[data-tvc-scroll-book]').forEach(function (b) {
     var where = b.closest('header') ? 'nav' : 'hero';
-    b.addEventListener('click', function () {
-      track('CTAClick', { cta: where });
-      var target = document.getElementById('tvcBookLink') || document.getElementById('book');
-      if (!target || !target.scrollIntoView) { openModal(); return; }
-      try {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (e) {
-        target.scrollIntoView(false);   /* older browsers: no options object */
-      }
-      afterScrollSettles(openModal);
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      leaveFor(BOOK_URL, where);
     });
   });
   document.getElementById('tvcOvX').addEventListener('click', closeModal);
@@ -1562,13 +1571,16 @@
     if (e.key === 'Escape' && ov.classList.contains('tvc-open')) closeModal();
   });
 
+  /* The closing CTA is a real link, so it keeps working (middle-click, open in
+     new tab, and a visitor who taps before our JS has run) even though the
+     handler below usually gets there first. */
   var bookLink = document.getElementById('tvcBookLink');
   if (bookLink) {
     bookLink.setAttribute('href', BOOK_URL);
     bookLink.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;  /* let the browser do its thing */
       e.preventDefault();
-      track('CTAClick', { cta: 'final' });
-      openModal();
+      leaveFor(BOOK_URL, 'final');
     });
   }
 
@@ -1940,12 +1952,24 @@
     });
   }
 
-  (function schedulePrewarm() {
-    if (!GHL_FORM_URL || FORM_MODE === 'bridge') return;
-    warmGhlOrigin(GHL_FORM_URL);
-    var go = function () { setTimeout(mountQualForm, 250); };
-    if (document.readyState === 'complete') go();
-    else window.addEventListener('load', go);
+  /* The qualification form no longer lives on this page, so there is nothing
+     here to pre-fetch. What is worth warming is the hop itself: the booking
+     page's own origin and GHL's widget origin, so that when the visitor lands
+     there the form is already most of the way to being on screen.
+
+     Deliberately not gated on window.load. The hero video delays that event
+     until its first frame decodes, and on a phone that is exactly the moment
+     we least want to be waiting. */
+  (function warmNextStep() {
+    if (BOOK_URL) {
+      try {
+        var p = document.createElement('link');
+        p.rel  = 'prefetch';
+        p.href = BOOK_URL;
+        document.head.appendChild(p);
+      } catch (e) { /* no prefetch support */ }
+    }
+    if (GHL_FORM_URL) warmGhlOrigin(GHL_FORM_URL);
   })();
 
   /* =====================================================================
