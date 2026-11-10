@@ -1,11 +1,11 @@
 ---
 name: tvc-vsl-skill
-description: "Edit a raw talking-head recording into a finished 16:9 VSL (video sales letter) in the TVC VSL style: tight cuts, word-by-word captions with italic keyword accents, gradient pills, full-screen cream and night motion-graphic cutaways, light-leak transitions, split-screen proof sections, per-word tick SFX, sub whooshes and a very quiet music bed, all in The Viral Circle design system. Use this whenever the user asks for a VSL, sales video, landing-page video, webinar opener, offer video or any horizontal talking-head edit for The Viral Circle / TVC, or says 'edit this like the VSL', 'VSL style', 'TVC VSL', even if they don't name the skill. For vertical 9:16 TikTok/Reels edits use tvc-motion-graphic-style or tvc-green-screen-edits instead."
+description: "Edit a raw talking-head recording into a finished 16:9 VSL (video sales letter) in the TVC VSL style: tight cuts, word-by-word captions in Coolvetica with Playfair italic keyword accents, gradient pills, full-screen cream and night motion-graphic cutaways, light-leak transitions, split-screen proof sections, per-word tick SFX, sub whooshes and a very quiet music bed. Fonts and components match the reference VSL; colours come from The Viral Circle design system. Use this whenever the user asks for a VSL, sales video, landing-page video, webinar opener, offer video or any horizontal talking-head edit for The Viral Circle / TVC, or says 'edit this like the VSL', 'VSL style', 'TVC VSL', even if they don't name the skill. For vertical 9:16 TikTok/Reels edits use tvc-motion-graphic-style or tvc-green-screen-edits instead."
 ---
 
 # TVC VSL skill
 
-Turn a raw talking-head recording into a finished 16:9 video sales letter. The edit style was reverse-engineered frame by frame from one reference VSL (3 min 9 s, 4K, 29.97 fps); its colours are replaced by The Viral Circle design system, everything else (layout, motion, timing, cuts, sound) is kept.
+Turn a raw talking-head recording into a finished 16:9 video sales letter. The edit style was reverse-engineered frame by frame from one reference VSL (3 min 9 s, 4K, 29.97 fps); only its colours are replaced by The Viral Circle design system. Everything else is kept exactly as the reference has it: the two fonts, every component, the layout, motion, timing, cuts and sound.
 
 Work autonomously end to end and verify your own output. Stop to ask only when an input is missing or a choice can't be undone.
 
@@ -22,7 +22,7 @@ The viewer never looks at a plain talking head for more than a second or two. Si
 
 Measured values for all of this are in `references/style-spec.md`. Read it before building anything. To see the look, open the images in `assets/reference-frames/` (`sheet-01..08.jpg` is the whole reference at 1 frame per second; `motion-*.jpg` are frame-by-frame strips of each animation). `references/reference-breakdown.md` is the shot-by-shot timeline and `references/components.md` has HTML/CSS/GSAP for each on-screen component.
 
-The reference frames show another company's video with its red-orange palette. Copy its structure, motion and timing. Never copy its colours, fonts, wording, logo or footage.
+The reference frames show another company's video with its red-orange palette. Copy its fonts, components, structure, motion and timing. Never copy its colours, wording, logo or footage.
 
 ## Inputs to collect
 
@@ -32,7 +32,7 @@ Ask only for what is missing:
 - **Script**, if one exists. Use it for spelling and to find retakes.
 - **Music file** and the start second. Never pick a commercial track yourself. No music supplied: deliver without and say so.
 - **Proof assets** for split-screen sections: a screen recording or the URL of the landing page, dashboard screenshots, result numbers. Real proof only; never invent a screenshot or a figure.
-- **Icons / 3D objects / stock clips**, if the user has them. Without them, build icons as typographic glyph tiles (see Brand).
+- **Icons / 3D objects / stock clips**, if the user has them. The reference uses three kinds of icon (line icons, rounded icon tiles and glossy 3D objects); see Brand for how to source and recolour each.
 - **Output size**: default 1920x1080 at 30 fps. 3840x2160 on request.
 
 ## Hard rules
@@ -41,7 +41,7 @@ Ask only for what is missing:
 2. Cuts land in silence, never mid-word. Lips and voice stay in sync to the frame.
 3. Nothing ever covers the speaker's eyes or mouth. Large keywords may sit over the chest or behind the head.
 4. On a full-screen cutaway the cutaway's own text replaces the captions; never show both.
-5. TVC colours and type only (see Brand). No colour sampled from the reference.
+5. Fonts and components come from the reference; colours come from the TVC design system (see Brand). Never a colour sampled from the reference, never a font from the design system.
 6. Every number, screenshot and testimonial on screen is real and supplied by the user. Mark anything illustrative as "Illustrative" on screen and flag it in the delivery note.
 7. The voice is the main thing. Music sits 24 to 27 dB under it; SFX never mask a word.
 8. No outro, logo sting or end card. The video ends on the speaker about 0.5 s after the last word.
@@ -50,7 +50,7 @@ Ask only for what is missing:
 
 ### 1. Setup
 
-Use the same toolchain as the `tvc-motion-graphic-style` skill and follow its Step 0 if that skill is available: FFmpeg, HyperFrames (HTML + GSAP compositions rendered through headless Chromium), faster-whisper with word timestamps, the Earshot SFX engine, OpenCV for face detection, and Montserrat + Poppins from `@fontsource`. If that skill is not installed, any deterministic HTML/GSAP renderer or Remotion works; the spec does not depend on the tool.
+Use the same toolchain as the `tvc-motion-graphic-style` skill and follow its Step 0 if that skill is available: FFmpeg, HyperFrames (HTML + GSAP compositions rendered through headless Chromium), faster-whisper with word timestamps, the Earshot SFX engine and OpenCV for face detection. Install the two VSL fonts as described under Brand (this skill does not use Montserrat or Poppins). If that skill is not installed, any deterministic HTML/GSAP renderer or Remotion works; the spec does not depend on the tool.
 
 Cloud sessions block many hosts. If a download is refused, say which host and ask for it to be allowed rather than working around it.
 
@@ -94,9 +94,9 @@ Anchor every row by phrase (`P("phrase")` gives the start of that phrase in the 
 
 Build to `references/style-spec.md` sections 4 and 5 and the snippets in `references/components.md`. In short:
 
-- Caption line: Montserrat 700, 38 px, sentence case, 2 to 5 words per group, words fade in one at a time on their own onset (0.12 s, grey to full colour).
-- Keyword: Poppins 700 italic, 100 to 120 px, `viral-rose`, blurs in over 0.2 s.
-- Pill: a thin gradient line draws under the caption, grows into a pill, the phrase appears inside in white Montserrat 800.
+- Caption line: Coolvetica Regular, 38 px, sentence case, 2 to 5 words per group, words fade in one at a time on their own onset (0.12 s, grey to full colour).
+- Keyword: Playfair Display 700 italic, 100 to 120 px, `viral-rose`, blurs in over 0.2 s.
+- Pill: a thin gradient line draws under the caption, grows into a pill, the phrase appears inside in white Coolvetica.
 - Spelling comes from the script.
 
 ### 7. Cutaways, transitions, split-screen
@@ -120,35 +120,52 @@ Follow `references/style-spec.md` section 8: tick per revealed word, whoosh per 
 - Contact sheet at 1 fps of the final: face never covered, no caption on a cutaway, no clipped text, brand colours only, cutaway share and spacing within the pacing rules.
 - 1920x1080, 30 fps, H.264 + AAC, faststart.
 
-## Brand: The Viral Circle design system
+## Brand: reference fonts and components, TVC colours
 
-The design system is the "The Viral Circle" Design System artifact in the user's account. Read its `project/README.md` and `project/tokens.json` at the start of each job (list the user's design systems and read the one titled "The Viral Circle"); if it has changed, it wins over this table. If it can't be read, say so and use the values below, which were copied from version 2 of its tokens.
+The split is simple and the user was explicit about it: **fonts and components are the reference's; colours are The Viral Circle's.** The two must not blend into a third look, so don't soften the reference's type toward the design system's Montserrat and Poppins, and don't let any of the reference's red-orange survive.
 
-| Reference VSL | TVC replacement |
+### Fonts (from the reference, identified by rendering them against its frames)
+
+| Role | Font | Where to get it |
+|---|---|---|
+| Everything sans: captions, pills, bullets, labels, title cards, numerals, split-screen words | **Coolvetica** (Typodermic). Its `t` with a hooked foot and its `u`-shaped `y` are what give the reference its look, so no substitute will do. | The user's own copy, typodermicfonts.com, or the npm package `coolvetica` (`coolvetica.otf`) when font sites are blocked. Regular is the free weight. Not bundled in this skill; tell the user to confirm their licence covers commercial video. |
+| Italic keywords and giant words | **Playfair Display 700 italic** (open licence) | npm `@fontsource/playfair-display` (`playfair-display-latin-700-italic.woff2`) |
+
+The reference sets its heaviest lines (title card, pills, giant numerals) in a bolder Coolvetica. Use Coolvetica Bold or Heavy if the user has them; otherwise use Regular with a same-colour stroke of 0.03em (`-webkit-text-stroke`, `paint-order: stroke fill`), which matches the reference closely.
+
+Load both with `@font-face` from local files. Before rendering, check a still: if the caption `t` has no hook, the font did not load and the browser fell back.
+
+### Colours (from the design system)
+
+The design system is the "The Viral Circle" Design System artifact in the user's account. Read its `project/tokens.json` at the start of each job (list the user's design systems and read the one titled "The Viral Circle") and take **colours only** from it; if they have changed, they win over this table. Ignore its typography and icon rules for VSLs. If it can't be read, say so and use the values below, copied from version 2 of its tokens.
+
+| Reference VSL | TVC colour |
 |---|---|
-| Red-orange accent `#D85136` (keywords, underlines, icons) | `viral-rose` `#CE4272` on cream and on light A-roll; `#F0A3C0` on night and over dark clothing |
-| Red-orange pill | `gradient-brand`: `linear-gradient(90deg, #CE4272, #4C3481)`, white text, radius 30 px |
+| Red-orange accent `#D85136` (keywords, underlines, icon accents) | `viral-rose` `#CE4272` on cream and on light A-roll; `#F0A3C0` on night and over dark clothing |
+| Red-orange pill | `gradient-brand`: `linear-gradient(90deg, #CE4272, #4C3481)`, white text |
+| Red rounded icon tiles | `viral-plum` `#8E397A`, white glyph |
 | White cutaway background with grey vignette | `surface` cream `#F5F0E8`, vignette to `#E4DACB` at the corners |
 | Black corner arcs with dots | `viral-indigo` `#4C3481` arcs, `sticker-black` dots |
 | Faint grey grid | `border` `#E8D7E1` at 60% |
 | Near-black card with red glow | Night `#120A1F` with one rose and one indigo radial glow |
-| Red/purple liquid texture card | Night base with slow rose, plum `#8E397A` and indigo blobs and fine scanlines |
+| Red/purple liquid texture card | Night base with slow rose, plum and indigo blobs and fine scanlines |
 | Yellow-orange film burn | White core, then rose, then plum light leak |
 | Amber-tinted stock B-roll | Duotone: shadows indigo, highlights rose-tinted cream, dark vignette |
-| Black caption text / white caption text | `ink` `#1A1A1A` / `#FFFFFF` |
-| Red rounded icon tiles | `viral-plum` `#8E397A` tile or gradient disc with a white inner ring, white glyph |
-| Split-screen black gutter, white caps | `sticker-black` gutter, white Montserrat 900 uppercase |
-| Quirky geometric sans | Montserrat (700 captions, 800 pills, 900 title cards and numbers) |
-| Bold italic display serif keyword | Poppins 700 italic. The system allows only Montserrat and Poppins. If the user asks for the reference's serif look, use Playfair Display 700 italic for keywords only and note the exception. |
+| Black / white caption text | `ink` `#1A1A1A` / `#FFFFFF` |
+| Split-screen black gutter | `sticker-black` |
 
-Rules that come with the system and matter in video:
+Colour rules that still apply: the gradient is always horizontal with rose on the left, never a third hue; no blue, green, orange or red anywhere; rose as text only at 24 px or larger.
 
-- The gradient is always horizontal, rose on the left. Never diagonal, vertical or reversed, never a third hue.
-- Text on the gradient is white, bold, 16 px or larger. Rose as text only at 24 px or larger.
-- No blue, green, orange or red. Teal `#69C9D0` only inside a TikTok Shop badge.
-- No emoji and no exclamation marks in on-screen text. Numerals with units: 150+, 30–35%, 48H.
-- No stored logo file yet: do not draw or fake the logo. Leave it out of the video unless the user supplies the PNG.
-- The system has no icon library. In video, icons are white Montserrat 800 glyphs or simple white line shapes on a plum tile or gradient disc. Use 3D objects only when the user supplies them, tinted to the brand hues.
+### Components (from the reference)
+
+Build every component the reference has, in the reference's shape, recoloured:
+
+- **Line icons** beside the head (thin `ink` outline with one `viral-rose` accent stroke).
+- **Icon tiles**: rounded squares in `viral-plum` with a white glyph and a two-line label.
+- **Glossy 3D objects** in the cream scenes (wallet, padlock, cube, chess piece, stopwatch, key, flag, calculator, magnifier, cash). Ask the user for 3D assets or generate them, then grade them to rose, plum and indigo. If none can be had, fall back to a large line icon in the same position and say so in the delivery note.
+- Dashed selection box with cursor, underline-to-pill, bullet list with asterisks, graph with counting percentage, falling banknotes, image cards, button mock with pointer hand, icon carousel, split-screen with one-word gutter caption, giant words behind the head.
+
+No logo file is stored in the design system yet: leave the logo out of the video unless the user supplies the PNG. No emoji in on-screen text.
 
 ## Delivery
 

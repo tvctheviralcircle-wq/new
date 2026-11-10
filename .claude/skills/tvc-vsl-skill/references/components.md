@@ -39,10 +39,13 @@ Conventions:
   --cream:#F5F0E8; --cream-edge:#E4DACB; --night:#120A1F;
   --rose-on-dark:#F0A3C0; --ink:#1A1A1A; --ink-muted-night:#C2B6CC;
   --hair:#E8D7E1; --black:#000; --white:#fff;
-  --display:"Montserrat",sans-serif; --body:"Poppins",sans-serif;
+  --sans:"Coolvetica",sans-serif; --serif:"Playfair Display",serif;
 }
-/* @font-face from local woff2: Montserrat 700/800/900, Poppins 700 italic */
-.stage{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:var(--display)}
+@font-face{font-family:"Coolvetica";src:url(assets/fonts/coolvetica.otf)}
+@font-face{font-family:"Playfair Display";font-style:italic;font-weight:700;src:url(assets/fonts/playfair-display-latin-700-italic.woff2)}
+/* .hv = the reference's heavier Coolvetica. Swap for a real Bold/Heavy file when the user has one. */
+.hv{-webkit-text-stroke:0.03em currentColor;paint-order:stroke fill}
+.stage{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:var(--sans)}
 ```
 
 ## 2. Caption group
@@ -54,7 +57,7 @@ Conventions:
 ```
 
 ```css
-.cap{position:absolute;font:700 38px/1.15 var(--display);color:var(--white);letter-spacing:-0.005em}
+.cap{position:absolute;font:38px/1.15 var(--sans);color:var(--white);letter-spacing:-0.005em}
 .cap--center{left:0;right:0;text-align:center}
 .cap--left{left:190px;text-align:left}
 .cap--on-light{color:var(--ink)}
@@ -82,7 +85,7 @@ Rules: 2 to 5 words per group; white over the dark shirt and dark scenes, ink on
 ```
 
 ```css
-.kw{position:absolute;font:italic 700 110px/1 var(--body);letter-spacing:-0.01em;color:var(--rose)}
+.kw{position:absolute;font:italic 700 110px/1 var(--serif);letter-spacing:-0.01em;color:var(--rose)}
 .kw--on-dark{color:var(--rose-on-dark)}
 .kw--scene{font-size:84px}
 .kw--giant{font-size:210px}
@@ -99,7 +102,7 @@ Place it so its cap line overlaps the caption line above by about 10 px; the two
 
 ```html
 <div class="pillwrap" style="left:50%;top:668px">
-  <div class="pill"><span class="pill__t">That's your problem</span></div>
+  <div class="pill"><span class="pill__t hv">That's your problem</span></div>
 </div>
 ```
 
@@ -107,7 +110,7 @@ Place it so its cap line overlaps the caption line above by about 10 px; the two
 .pillwrap{position:absolute;transform:translateX(-50%)}
 .pill{height:137px;padding:0 44px;border-radius:30px;background:var(--grad);
       display:flex;align-items:center;transform-origin:50% 0;overflow:hidden}
-.pill__t{font:800 62px/1 var(--display);color:var(--white);white-space:nowrap}
+.pill__t{font:62px/1 var(--sans);color:var(--white);white-space:nowrap}
 .pill--sm{height:64px;padding:0 22px;border-radius:30px}
 .pill--sm .pill__t{font-size:30px}
 ```
@@ -133,7 +136,7 @@ Start phase 1 on the last word of the caption above; start phase 2 on the first 
 ```
 
 ```css
-.bul{position:absolute;list-style:none;margin:0;padding:0;font:700 34px/1 var(--display);color:var(--ink)}
+.bul{position:absolute;list-style:none;margin:0;padding:0;font:34px/1 var(--sans);color:var(--ink)}
 .bul li{display:flex;align-items:center;gap:16px;margin-bottom:26px}
 .ast{width:30px;height:30px;background:var(--rose);
      clip-path:polygon(42% 0,58% 0,58% 30%,80% 9%,91% 20%,70% 42%,100% 42%,100% 58%,70% 58%,91% 80%,80% 91%,58% 70%,58% 100%,42% 100%,42% 70%,20% 91%,9% 80%,30% 58%,0 58%,0 42%,30% 42%,9% 20%,20% 9%,42% 30%)}
@@ -161,15 +164,15 @@ Rows stay on screen until the scene changes. Maximum four rows.
 .tile{width:64px;height:64px;border-radius:16px;background:var(--plum);display:grid;place-items:center}
 .tile--disc{border-radius:50%;background:var(--grad);box-shadow:inset 0 0 0 3px rgba(255,255,255,.9)}
 .tile--xl{width:150px;height:150px;border-radius:34px}
-.glyph{font:800 30px/1 var(--display);color:var(--white)}
-.callout__t{font:700 22px/1.2 var(--display);color:var(--ink)}
+.glyph{font:30px/1 var(--sans);color:var(--white)}
+.callout__t{font:22px/1.2 var(--sans);color:var(--ink)}
 ```
 
 ```js
 tl.fromTo(tile,{scale:0.6,opacity:0},{scale:1,opacity:1,duration:0.2,ease:"back.out(2)"}, t);
 ```
 
-The design system has no icon library: use a Montserrat 800 glyph (✓ ✕ → ★ a numeral, a currency sign, "24/7") or a simple white inline SVG line shape. Keep at least 120 px between any callout and the face box.
+Glyph: a simple white inline SVG shape as in the reference (people, bell, robot face, phone, file), or a Coolvetica character. The reference also uses bare line icons beside the head with no tile: draw those as 2.5 px `ink` outlines with one `viral-rose` accent stroke, about 80 px. Keep at least 120 px between any callout and the face box.
 
 ## 7. Dashed box with cursor
 
@@ -186,7 +189,7 @@ The design system has no icon library: use a Montserrat 800 glyph (✓ ✕ → �
                  linear-gradient(90deg,#fff 50%,transparent 0) bottom/20px 2px repeat-x,
                  linear-gradient(0deg,#fff 50%,transparent 0) left/2px 20px repeat-y,
                  linear-gradient(0deg,#fff 50%,transparent 0) right/2px 20px repeat-y}
-.dbox__t{font:700 56px/1.05 var(--display);color:var(--white)}
+.dbox__t{font:56px/1.05 var(--sans);color:var(--white)}
 .dbox__t b{color:var(--rose-on-dark);font-weight:700}
 .dbox__cur{position:absolute;right:-18px;bottom:-22px;width:34px}
 .dbox--on-light{filter:invert(1) hue-rotate(180deg)} /* or restate the gradients in ink */
@@ -251,10 +254,10 @@ Cut to the cream scene on frame 0 with the words already at 4.5x (they will be c
 .night{position:absolute;inset:0;background:
   radial-gradient(600px 700px at -5% 55%,rgba(206,66,114,.55),transparent 70%),
   radial-gradient(420px 420px at 98% 90%,rgba(76,52,129,.6),transparent 70%),var(--night)}
-.night .l1{position:absolute;left:430px;top:500px;font:700 40px/1.15 var(--display);color:#fff}
+.night .l1{position:absolute;left:430px;top:500px;font:40px/1.15 var(--sans);color:#fff}
 .night .l2{font-weight:800}
 .night .rule{position:absolute;left:430px;top:612px;width:560px;height:1px;background:#fff;transform-origin:0 50%}
-.night .l3{position:absolute;left:430px;top:650px;font:800 56px/1 var(--display);color:#fff}
+.night .l3{position:absolute;left:430px;top:650px;font:56px/1 var(--sans);color:#fff}
 ```
 
 ```js
@@ -274,8 +277,9 @@ Drift both glows about 60 px over the scene.
 .tex .b{width:800px;height:800px;left:900px;top:300px;background:var(--plum);opacity:.7}
 .tex .c{width:700px;height:600px;left:500px;top:-200px;background:var(--indigo);opacity:.8}
 .tex::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 3px,transparent 3px 7px)}
-.tex .lead{position:absolute;right:calc(50% - 330px);top:440px;font:900 60px/1 var(--display);color:#fff}
-.tex .big{position:absolute;left:0;right:0;top:500px;text-align:center;font:900 130px/1 var(--display);color:#fff}
+/* add class hv to .lead and .big */
+.tex .lead{position:absolute;right:calc(50% - 330px);top:440px;font:60px/1 var(--sans);color:#fff}
+.tex .big{position:absolute;left:0;right:0;top:500px;text-align:center;font:130px/1 var(--sans);color:#fff}
 ```
 
 Move each blob 120 to 200 px in a different direction over the 1.3 s. Lead-in fades word by word; the big word blurs in over 0.15 s; the last word rises from 50% grey to white.
@@ -319,8 +323,8 @@ If the user supplies a real film-burn clip, desaturate it, tint it rose, and scr
 .split{position:absolute;inset:0;background:var(--black)}
 .split__top{position:absolute;left:0;top:0;width:1920px;height:500px;overflow:hidden;border-radius:0 0 40px 40px;background:#fff}
 .split__bot{position:absolute;left:0;top:560px;width:1920px;height:520px;overflow:hidden;border-radius:40px 40px 0 0}
-.split__word{position:absolute;left:0;right:0;top:512px;text-align:center;font:900 30px/36px var(--display);letter-spacing:.02em;color:#fff;text-transform:uppercase}
-.count{position:absolute;font:900 110px/1 var(--display);color:var(--rose)}
+.split__word{position:absolute;left:0;right:0;top:512px;text-align:center;font:30px/36px var(--sans);letter-spacing:.02em;color:#fff;text-transform:uppercase}
+.count{position:absolute;font:110px/1 var(--sans);color:var(--rose)}
 ```
 
 Record the page with a headless browser at 1920 wide, scrolling at a constant 250 to 350 px per second, or animate `translateY` on a tall screenshot. Replace `.split__word` text on each spoken word (set, no fade). The speaker panel is the same lip-synced video, cropped to its middle band.
@@ -334,13 +338,13 @@ function counter(tl, el, from, to, t, dur, fmt){   // fmt e.g. v=>"+"+v.toFixed(
 }
 ```
 
-Percent beside a graph: Montserrat 800, 30 px, ink, 2.2 s. Money behind the head: `.kw--giant` in Montserrat 900, 0.8 s. Pair with the ticker sound for the same duration.
+Percent beside a graph: Coolvetica heavy, 30 px, ink, 2.2 s. Money behind the head: 210 px Coolvetica heavy (`.hv`) in rose, 0.8 s. Pair with the ticker sound for the same duration.
 
 ## 15. Button mock with pointer
 
 ```css
 .btn{position:absolute;padding:14px 34px;border-radius:30px;background:#fff;color:var(--indigo);
-     font:800 30px/1 var(--display);box-shadow:0 4px 20px rgba(76,52,129,.12)}
+     font:30px/1 var(--sans);box-shadow:0 4px 20px rgba(76,52,129,.12)}
 .btn.is-on{background:var(--grad);color:#fff}
 .hand{position:absolute;width:44px}
 ```

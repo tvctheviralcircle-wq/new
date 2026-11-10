@@ -1,6 +1,6 @@
 # TVC VSL style spec
 
-Every number here was measured from the reference VSL (3840x2160, 29.97 fps, 189.3 s) and converted to a 1920x1080 timeline. Colours are already mapped to The Viral Circle design system. Where a value is an estimate from frames it says "about".
+Every number here was measured from the reference VSL (3840x2160, 29.97 fps, 189.3 s) and converted to a 1920x1080 timeline. Fonts are the reference's own (Coolvetica and Playfair Display 700 italic). Colours are already mapped to The Viral Circle design system. Where a value is an estimate from frames it says "about".
 
 ## Contents
 
@@ -85,22 +85,24 @@ Pick one per clause in the beat sheet.
 
 | Role | Font | Size | Colour | Notes |
 |---|---|---|---|---|
-| Caption line | Montserrat 700 | 38 px, line height 1.15 | white over the dark shirt or dark scenes; `ink` on cream and on the light A-roll background | sentence case, no stroke, no box; a soft 0 2 12 rgba(0,0,0,.35) shadow only when white sits on a busy area |
-| Keyword | Poppins 700 italic | 100 to 120 px on A-roll, 72 to 96 px in cream scenes | `viral-rose`; `#F0A3C0` on night or over black clothing | Title Case, tight tracking (-0.01em), overlaps the caption line by about 10 px |
-| Giant word behind the head | Poppins 700 italic or Montserrat 900 for numerals | 200 to 220 px | `viral-rose` | speaker matted on top; the head hides the middle letters, so choose words that stay readable from their ends |
-| Pill text | Montserrat 800 | 62 px in a 137 px high pill; small variant 30 px in a 64 px pill | white on `gradient-brand` | padding 0 44 px, radius 30 px |
-| Bullet list | Montserrat 700 | 34 px, row gap 26 px | `ink` | leading glyph: an 8-point asterisk in `viral-rose`, 30 px |
-| Title card headline | Montserrat 900 | big word 130 px, lead-in 60 px | white | lead-in sits top-right of the big word, right-aligned to it |
-| Night card line | Montserrat 700, second line 800 | 40 px | white, last word `#C2B6CC` until spoken | left-aligned at x = 430 |
-| Icon callout label | Montserrat 700 | 22 px, two lines | `ink` | beside a 64 px tile |
-| Carousel label | Montserrat 700 | 44 px while featured, 20 px in the overview | `ink` | |
-| Split-screen word | Montserrat 900 uppercase | 30 px, tracking 0.02em | white on `sticker-black` | one word at a time |
-| Split-screen counter | Montserrat 900 | 110 px | `viral-rose` | "+0" counts to "+40" |
-| Name box | Montserrat 700, second line in rose | 56 px | white / `#F0A3C0` | 2 px dashed white border, 10 px dash, padding 14 px |
-| Cutaway small line | Montserrat 700 | 30 to 34 px | `ink` | centred above the object |
-| Cutaway second line | Montserrat 700 22 px + keyword 64 px | | | centred below the object |
+| Caption line | Coolvetica Regular | 38 px, line height 1.15 | white over the dark shirt or dark scenes; `ink` on cream and on the light A-roll background | sentence case, no stroke, no box; a soft 0 2 12 rgba(0,0,0,.35) shadow only when white sits on a busy area |
+| Keyword | Playfair Display 700 italic | 100 to 120 px on A-roll, 72 to 96 px in cream scenes | `viral-rose`; `#F0A3C0` on night or over black clothing | first letter capitalised as in the reference ("Fix those", "Now,", "Book a call"), tight tracking (-0.01em), overlaps the caption line by about 10 px |
+| Giant word behind the head | Playfair Display 700 italic; Coolvetica heavy for numerals | 200 to 220 px | `viral-rose` | speaker matted on top; the head hides the middle letters, so choose words that stay readable from their ends |
+| Pill text | Coolvetica heavy | 62 px in a 137 px high pill; small variant 30 px in a 64 px pill | white on `gradient-brand` | padding 0 44 px, radius 30 px |
+| Bullet list | Coolvetica Regular | 34 px, row gap 26 px | `ink` | leading glyph: an 8-point asterisk in `viral-rose`, 30 px |
+| Title card headline | Coolvetica heavy | big word 130 px, lead-in 60 px | white | lead-in sits top-right of the big word, right-aligned to it |
+| Night card line | Coolvetica Regular, second line heavy | 40 px | white, last word `#C2B6CC` until spoken | left-aligned at x = 430 |
+| Icon callout label | Coolvetica Regular | 22 px, two lines | `ink` | beside a 64 px tile |
+| Carousel label | Coolvetica Regular | 44 px while featured, 20 px in the overview | `ink` | |
+| Split-screen word | Coolvetica heavy, uppercase | 30 px, tracking 0.02em | white on `sticker-black` | one word at a time |
+| Split-screen counter | Coolvetica heavy | 110 px | `viral-rose` | "+0" counts to "+40" |
+| Name box | Coolvetica Regular, second line in rose | 56 px | white / `#F0A3C0` | 2 px dashed white border, 10 px dash, padding 14 px |
+| Cutaway small line | Coolvetica Regular | 30 to 34 px | `ink` | centred above the object |
+| Cutaway second line | Coolvetica Regular 22 px + keyword 64 px | | | centred below the object |
 
-Size contrast is the point: caption 38, keyword 110. Don't close that gap.
+"Heavy" means Coolvetica Bold or Heavy when the user has them, otherwise Regular with a 0.03em same-colour stroke. Coolvetica is tightly spaced by design; leave its tracking at 0.
+
+Size contrast is the point: caption 38, keyword 110. Don't close that gap. Font contrast is the other half: a plain grotesque sentence against a high-contrast italic serif word.
 
 ## 5. Text motion
 
